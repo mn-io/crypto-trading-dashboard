@@ -1,51 +1,71 @@
 'use client'
 
-type Transaction = {
-  id: number;
-  date: string;
-  description: string;
-  amount: number;
-};
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchTransactionData, TransactionDatum } from "../store/transactionSlice";
+import TransactionModal from "./add-trade-modal";
 
-const mockData: Transaction[] = [
-  { id: 1, date: "2025-09-01", description: "BTC Buy", amount: -5000 },
-  { id: 2, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 3, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 4, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 5, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 6, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 7, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 8, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 9, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-  { id: 10, date: "2025-09-05", description: "BTC Sell", amount: +2500 },
-];
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric'
+});
+
+const timeFormatter = new Intl.DateTimeFormat('de-DE', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false
+});
 
 export default function AssetTransactionTable() {
+  const dispatch = useAppDispatch();
+  const data: TransactionDatum[] = useAppSelector((state) => state.transactions.data);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchTransactionData());
+  }, [dispatch]);
+
+  const now = Date.now();
+  const today = dateFormatter.format(now);
+
   return (
-    <section className="p-4 rounded-xl shadow bg-white">
-      <h2 className="text-xl font-semibold mb-2">Recent Transactions</h2>
-      <div className="max-h-64 overflow-y-auto">
+    <section>
+      <TransactionModal isOpen={openDialog} onClose={() => setOpenDialog(false)} />
+        
+      <div className="mb-4">
+        <button
+          className="w-full primary-button-color font-semibold py-2 px-4 rounded cursor-pointer"
+          onClick={() => setOpenDialog(true)}
+        >
+          Trade
+        </button>
+      </div>
+
+      <div className="max-h-64 overflow-y-auto table-bg-color rounded-xl p-4">
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 bg-white">
-            <tr className="border-b">
-              <th className="p-2">Date</th>
-              <th className="p-2">Description</th>
-              <th className="p-2">Amount</th>
-            </tr>
-          </thead>
           <tbody>
-            {mockData.map((t) => (
-              <tr key={t.id} className="border-b">
-                <td className="p-2">{t.date}</td>
-                <td className="p-2">{t.description}</td>
-                <td
-                  className={`p-2 ${t.amount < 0 ? "text-red-600" : "text-green-600"
-                    }`}
-                >
-                  {t.amount < 0 ? "-" : "+"}${Math.abs(t.amount)}
-                </td>
-              </tr>
-            ))}
+            {data.map((datum) => {
+              const dateObj = new Date(datum.time);
+              const date = dateFormatter.format(dateObj);
+              const time = timeFormatter.format(dateObj);
+
+              const sign = datum.type == "Buy" ? "+" : "-"
+
+              return (
+                <tr key={datum.time + datum.type}>
+                  <td className="text-left pb-2">{datum.type}</td>
+                  <td className="text-center font-semibold">
+                    {sign + datum.totalAmountAsset + "BTC / " + sign + datum.totalPriceUsd + " $"}
+                  </td>
+                  <td className="text-right">
+                    {date != today ? date + " " : ""}
+                    {time}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
