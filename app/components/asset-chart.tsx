@@ -29,8 +29,7 @@ function getMinMax(data: ChartDatum[]): { min: number; max: number } {
 }
 
 function roundToTwoDigits(num: number, roundUp: boolean): number {
-  const digits = Math.pow(10, Math.floor(Math.log10(num)) - 1);
-  console.log(num, digits, Math.floor(num / digits) * digits);
+  const digits = Math.pow(10, Math.floor(Math.log10(num)) - 1); // - 1: 2digits-1
   if (roundUp) {
     return Math.ceil(num / digits) * digits;
   } else {
@@ -113,7 +112,7 @@ export default function AssetChart() {
   //TODO: check for gaps in data time, fix graph if needed 
 
   return (
-    <section className="p-4 rounded-xl shadow bg-white">
+    <section className="p-4">
       <div className="h-64 flex flex-col items-center justify-center space-y-2">
 
         <h2 className="text-xl font-semibold">BTC</h2>
@@ -150,7 +149,7 @@ export default function AssetChart() {
               {prevCloseRounded && (
                 <ReferenceLine
                   y={prevCloseRounded}
-                  stroke="#69cdcc"
+                  stroke="var(--color-graph-stroke)"
                   strokeWidth={1}
                   strokeDasharray="2 3"
                   label={({ viewBox }) => {
@@ -162,7 +161,7 @@ export default function AssetChart() {
                           y={y - 12}
                           width={100}
                           height={16}
-                          fill="#40bebf"
+                          fill="var(--color-graph-fill)"
                           rx={4}
                           ry={4}
                         />
@@ -171,7 +170,7 @@ export default function AssetChart() {
                           y={y}
                           fontSize={10}
                           textAnchor="end"
-                          fill="#fff"
+                          fill="var(--color-graph-label-bg)"
                         >
                           Prev close
                         </text>
@@ -189,27 +188,31 @@ export default function AssetChart() {
                 ticks={getTicks(minLabel, maxLabel, prevCloseRounded, currentRounded, highlightedValue)}
                 tick={({ x, y, payload }) => {
                   //console.log("called for " + payload.value + ", priceUsd in 0:" + data[0].priceUsd)
-                  let textColor = "#287878";
-                  let backgroundColor = "transparent";
+                  let textColor = "var(--color-graph-label-text)";
+                  let backgroundColor = "var(--color-graph-label-bg)";
+                  let zIndex = 0;
 
                   const width = (maxLabel + "").length * charWidth;
                   if (prevCloseRounded && payload.value === prevCloseRounded) {
-                    textColor = "#fff";
-                    backgroundColor = "#40bebf";
+                    textColor = "var(--color-graph-label-bg)";
+                    backgroundColor = "var(--color-graph-label-bg-prevclose)";
+                    zIndex = 1;
                   }
 
                   if (currentRounded && payload.value === currentRounded) {
-                    textColor = "#fff";
-                    backgroundColor = "#287878";
+                    textColor = "var(--color-graph-label-bg)";
+                    backgroundColor = "var(--color-graph-label-text)";
+                    zIndex = 1;
                   }
 
                   if (highlightedValue !== null && payload.value === highlightedValue) {
-                    textColor = "#fff";
-                    backgroundColor = "#287878";
+                    textColor = "var(--color-graph-label-bg)";
+                    backgroundColor = "var(--color-graph-label-text)";
+                    zIndex = 2;
                   }
 
                   return (
-                    <g>
+                    <g z-index={zIndex}>
                       <rect
                         x={x}
                         y={y - 12}
