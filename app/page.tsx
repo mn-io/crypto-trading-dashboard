@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { Provider } from "react-redux";
-import { store } from "./store";
+import { Provider } from 'react-redux';
 
-import AssetAccountSummary from "./components/asset-account-summary";
-import AssetChart from "./components/asset-chart";
-import AssetTransactionTable from "./components/asset-transaction-table";
+import AssetAccountSummary from './components/asset-account-summary';
+import AssetChart from './components/asset-chart';
+import AssetTransactionTable from './components/asset-transaction-table';
+import { store } from './store';
 
 export default function RootPage() {
   return (
@@ -21,7 +21,7 @@ export default function RootPage() {
           </div>
 
           <div className="order-2 lg:order-3 lg:col-span-2">
-            <AssetChart/>
+            <AssetChart />
           </div>
         </div>
       </main>

@@ -1,21 +1,25 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchTransactionData, getNetHoldingSign, TransactionDatum } from "../store/transactionSlice";
-import TransactionModal from "./add-trade-modal";
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  fetchTransactionData,
+  getNetHoldingSign,
+  TransactionDatum,
+} from '../store/transactionSlice';
+import TransactionModal from './add-trade-modal';
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',
   month: '2-digit',
-  year: 'numeric'
+  year: 'numeric',
 });
 
 const timeFormatter = new Intl.DateTimeFormat('de-DE', {
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',
-  hour12: false
+  hour12: false,
 });
 
 export default function AssetTransactionTable() {
@@ -33,7 +37,7 @@ export default function AssetTransactionTable() {
   return (
     <section>
       <TransactionModal isOpen={openDialog} onClose={() => setOpenDialog(false)} />
-        
+
       <div className="mb-4">
         <button
           className="w-full primary-button-color font-semibold py-2 px-4 rounded cursor-pointer"
@@ -52,21 +56,26 @@ export default function AssetTransactionTable() {
               const time = timeFormatter.format(dateObj);
 
               const netHoldingsing = getNetHoldingSign(datum.type);
-              const netHoldingsingStr = netHoldingsing == 1 ? "+" : "-"
-              const netHoldingsingInvertedStr = netHoldingsing == -1 ? "+" : "-"
+              const netHoldingsingStr = netHoldingsing == 1 ? '+' : '-';
+              const netHoldingsingInvertedStr = netHoldingsing == -1 ? '+' : '-';
 
               return (
                 <tr key={datum.time + datum.type}>
                   <td className="text-left pb-2">{datum.type}</td>
                   <td className="text-center font-semibold">
-                    {netHoldingsingInvertedStr + datum.amountAsset + "BTC / " + netHoldingsingStr + datum.priceUsd + " $"}
+                    {netHoldingsingInvertedStr +
+                      datum.amountAsset +
+                      'BTC / ' +
+                      netHoldingsingStr +
+                      datum.priceUsd +
+                      ' $'}
                   </td>
                   <td className="text-right">
-                    {date != today ? date + " " : ""}
+                    {date != today ? date + ' ' : ''}
                     {time}
                   </td>
                 </tr>
-              )
+              );
             })}
           </tbody>
         </table>

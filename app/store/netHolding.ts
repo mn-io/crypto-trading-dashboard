@@ -1,7 +1,7 @@
-import { createSelector } from "@reduxjs/toolkit";
-import { RootState } from ".";
-import Big from "big.js"
-import { TransactionDatum } from "./transactionSlice";
+import { createSelector } from '@reduxjs/toolkit';
+import Big from 'big.js';
+import { TransactionDatum } from './transactionSlice';
+import { RootState } from '.';
 
 export type NetHolding = {
   totalAsset: string;
@@ -15,16 +15,16 @@ export const selectNetHolding = createSelector(
   (transactions: TransactionDatum[]): NetHolding => {
     return transactions.reduce<NetHolding>(
       (acc, tx) => {
-        if (tx.type === "Buy") {
+        if (tx.type === 'Buy') {
           acc.totalAsset = new Big(acc.totalAsset).plus(tx.amountAsset).toString();
           acc.totalUsd = new Big(acc.totalUsd).plus(tx.priceUsd).toString();
-        } else if (tx.type === "Sell") {
-          acc.totalAsset = new Big(acc.totalAsset).minus(tx.amountAsset).toString();;
-          acc.totalUsd = new Big(acc.totalUsd).minus(tx.priceUsd).toString();;
+        } else if (tx.type === 'Sell') {
+          acc.totalAsset = new Big(acc.totalAsset).minus(tx.amountAsset).toString();
+          acc.totalUsd = new Big(acc.totalUsd).minus(tx.priceUsd).toString();
         }
         return acc;
       },
-      { totalAsset: "0", totalUsd: "0" }
+      { totalAsset: '0', totalUsd: '0' },
     );
-  }
+  },
 );

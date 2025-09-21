@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
-import Head from "next/head";
+import type { Metadata } from 'next';
+import { Geist } from 'next/font/google';
+import './globals.css';
+import Head from 'next/head';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Crypto Trading Dashboard",
+  title: 'Crypto Trading Dashboard',
   icons: {
     icon: '/favicon.png',
     shortcut: '/favicon.png',
@@ -22,13 +22,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   const consoleError = console.error;
   console.error = (...args) => {
-    if (
-      typeof args[0] === "string" &&
-      args[0].includes("hydrated but some attributes")
-    ) {
+    if (typeof args[0] === 'string' && args[0].includes('hydrated but some attributes')) {
       return; // ignore hydration mismatch warnings
     }
     consoleError(...args);
@@ -39,11 +35,7 @@ export default function RootLayout({
       <Head>
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
-      <body
-        className={`${geistSans.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${geistSans.variable} antialiased`}>{children}</body>
     </html>
   );
 }

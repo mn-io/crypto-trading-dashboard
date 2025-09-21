@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --font-sans: var(--font-geist-sans);
@@ -12,7 +12,6 @@
   --color-graph-label-bg: #fff;
   --color-graph-label-text: #287878;
   --color-graph-label-bg-prevclose: #40bebf;
-  ;
 }
 
 body {
@@ -29,9 +28,8 @@ body {
 }
 .primary-button-color:hover {
   background-color: var(--color-theme-dark);
-  filter: brightness(1.2)
+  filter: brightness(1.2);
 }
-
 
 .input-root {
   background-color: var(--color-theme-gray);
@@ -47,10 +45,9 @@ body {
   outline: none;
 }
 
-
 .input-root span {
-    color: var(--color-graph-label);
-    padding: 5px;
-    font-size: 0.7em;
-    font-weight: bold;
-  }
+  color: var(--color-graph-label);
+  padding: 5px;
+  font-size: 0.7em;
+  font-weight: bold;
+}

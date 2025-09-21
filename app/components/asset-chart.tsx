@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from "react";
+import Big from 'big.js';
+import { useEffect, useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchChartData, ChartDatum } from "../store/chartSlice";
-import Big from "big.js";
+import { fetchChartData, ChartDatum } from '../store/chartSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 
 const paddingLabel = 4;
 const charWidth = 6;
@@ -62,26 +62,33 @@ function filterCloseValues(values: number[], threshold = 0.1): number[] {
   return result;
 }
 
-function getTicks(min: number, max: number, prevClose: number | null, current: number | null, highlightedValue: number | null, steps = 6): number[] {
+function getTicks(
+  min: number,
+  max: number,
+  prevClose: number | null,
+  current: number | null,
+  highlightedValue: number | null,
+  steps = 6,
+): number[] {
   let ticks: number[] = [];
   for (let i = 0; i < steps; i++) {
     const ratio = i / (steps - 1);
-    const value = min + (max - min) * ratio
+    const value = min + (max - min) * ratio;
     ticks.push(value);
   }
 
-  if (!!prevClose) {
-    ticks.push(prevClose)
+  if (prevClose) {
+    ticks.push(prevClose);
   }
 
-  if (!!current) {
-    ticks.push(current)
+  if (current) {
+    ticks.push(current);
   }
 
   ticks.sort((a, b) => a - b); // sort ascending
   ticks = filterCloseValues(ticks);
-  if (!!highlightedValue) {
-    ticks.push(highlightedValue)
+  if (highlightedValue) {
+    ticks.push(highlightedValue);
     ticks.sort((a, b) => a - b); // sort ascending
   }
 
@@ -98,30 +105,34 @@ export default function AssetChart() {
     dispatch(fetchChartData());
   }, [dispatch]);
 
-  const prevCloseRounded = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd)) : null;
-  const prevCloseRoundedTwoDigits = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd) * 100) / 100 : null;
-  const currentRounded = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[chartData.length - 1].priceUsd)) : null;
+  const prevCloseRounded =
+    !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd)) : null;
+  const prevCloseRoundedTwoDigits =
+    !!chartData && chartData.length >= 1
+      ? Math.floor(parseFloat(chartData[0].priceUsd) * 100) / 100
+      : null;
+  const currentRounded =
+    !!chartData && chartData.length >= 1
+      ? Math.floor(parseFloat(chartData[chartData.length - 1].priceUsd))
+      : null;
 
   const { min: minValue, max: maxValue } = getMinMax(chartData);
 
   const { minLabel, maxLabel } = {
     minLabel: roundToTwoDigits(minValue, false),
-    maxLabel: roundToTwoDigits(maxValue, true)
-  }
+    maxLabel: roundToTwoDigits(maxValue, true),
+  };
 
   const pnlBig = new Big(transactions.pnl).round(2, 0);
   const isPositive = pnlBig.gte(0);
-  const pnlFormatted = (isPositive ? "+" : "") + pnlBig.toFixed(2);
+  const pnlFormatted = (isPositive ? '+' : '') + pnlBig.toFixed(2);
 
   return (
     <section className="p-4">
       <div className="h-64 flex flex-col items-center justify-center space-y-2">
-
         <h2 className="text-xl font-semibold">BTC</h2>
         <h2 className="text-xl font-semibold">{prevCloseRoundedTwoDigits} $</h2>
-        <div className={isPositive ? "text-green-500" : "text-red-500"}>
-          PnL: {pnlFormatted} $
-        </div>
+        <div className={isPositive ? 'text-green-500' : 'text-red-500'}>PnL: {pnlFormatted} $</div>
 
         <div className="w-full flex-1">
           <ResponsiveContainer width="100%" height="100%">
@@ -179,7 +190,7 @@ export default function AssetChart() {
                           Prev close
                         </text>
                       </g>
-                    )
+                    );
                   }}
                 />
               )}
@@ -189,29 +200,35 @@ export default function AssetChart() {
                 tickLine={false}
                 axisLine={false}
                 interval={0}
-                ticks={getTicks(minLabel, maxLabel, prevCloseRounded, currentRounded, highlightedValue)}
+                ticks={getTicks(
+                  minLabel,
+                  maxLabel,
+                  prevCloseRounded,
+                  currentRounded,
+                  highlightedValue,
+                )}
                 tick={({ x, y, payload }) => {
                   //console.log("called for " + payload.value + ", priceUsd in 0:" + data[0].priceUsd)
-                  let textColor = "var(--color-graph-label-text)";
-                  let backgroundColor = "var(--color-graph-label-bg)";
+                  let textColor = 'var(--color-graph-label-text)';
+                  let backgroundColor = 'var(--color-graph-label-bg)';
                   let zIndex = 0;
 
-                  const width = (maxLabel + "").length * charWidth;
+                  const width = (maxLabel + '').length * charWidth;
                   if (prevCloseRounded && payload.value === prevCloseRounded) {
-                    textColor = "var(--color-graph-label-bg)";
-                    backgroundColor = "var(--color-graph-label-bg-prevclose)";
+                    textColor = 'var(--color-graph-label-bg)';
+                    backgroundColor = 'var(--color-graph-label-bg-prevclose)';
                     zIndex = 1;
                   }
 
                   if (currentRounded && payload.value === currentRounded) {
-                    textColor = "var(--color-graph-label-bg)";
-                    backgroundColor = "var(--color-graph-label-text)";
+                    textColor = 'var(--color-graph-label-bg)';
+                    backgroundColor = 'var(--color-graph-label-text)';
                     zIndex = 1;
                   }
 
                   if (highlightedValue !== null && payload.value === highlightedValue) {
-                    textColor = "var(--color-graph-label-bg)";
-                    backgroundColor = "var(--color-graph-label-text)";
+                    textColor = 'var(--color-graph-label-bg)';
+                    backgroundColor = 'var(--color-graph-label-text)';
                     zIndex = 2;
                   }
 
@@ -226,18 +243,12 @@ export default function AssetChart() {
                         rx={4}
                         ry={4}
                       />
-                      <text
-                        x={x + paddingLabel}
-                        y={y}
-                        fill={textColor}
-                        fontSize={10}
-                      >
+                      <text x={x + paddingLabel} y={y} fill={textColor} fontSize={10}>
                         {payload.value}
                       </text>
                     </g>
                   );
                 }}
-
               />
               <Area
                 type="linear"
@@ -252,6 +263,6 @@ export default function AssetChart() {
           </ResponsiveContainer>
         </div>
       </div>
-    </section >
+    </section>
   );
 }
