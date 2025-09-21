@@ -3,19 +3,12 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchTransactionData } from "../store/transactionSlice";
-import { calcuateTotalNetHoldingAsset, calcuateTotatNetPriceUsd, TransactionDatum } from "../store/transaction";
+import { TransactionDatum } from "../store/transaction";
+import { selectNetHolding } from "../store/netHolding";
 
 export default function AssetAccountSummary() {
   const dispatch = useAppDispatch();
-  const data: TransactionDatum[] = useAppSelector((state) => state.transactions.data);
-
-  useEffect(() => {
-    dispatch(fetchTransactionData());
-  }, [dispatch]);
-
-  //TODO: add cache
-  const amountAsset = calcuateTotalNetHoldingAsset(data);
-  const amountPriceUsd = calcuateTotatNetPriceUsd(data);
+  const netHolding = useAppSelector(selectNetHolding);
 
   return (
     <section className="p-4 flex items-start justify-between">
@@ -24,8 +17,8 @@ export default function AssetAccountSummary() {
       </div>
       <div className="text-right text-sm">
         <p>Aavilable</p>
-        <p>{amountAsset} BTC</p>
-        <p>{amountPriceUsd} $</p>
+        <p>{netHolding.totalAsset} BTC</p>
+        <p>{netHolding.totalUsd} $</p>
       </div>
     </section>
   );

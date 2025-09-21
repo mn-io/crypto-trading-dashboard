@@ -7,8 +7,8 @@ type TransactionBaseDatum = {
 };
 
 export type TransactionDatum = TransactionBaseDatum & {
-    totalPriceUsdNet: number;
-    totalAmountAssetNet: number;
+    totalPriceUsdNumber: number;
+    totalAmountAssetNumber: number;
 };
 
 export function createNewTransactionDatum(data: TransactionBaseDatum): TransactionDatum {
@@ -17,24 +17,7 @@ export function createNewTransactionDatum(data: TransactionBaseDatum): Transacti
         totalPriceUsd: data.totalPriceUsd,
         totalAmountAsset: data.totalAmountAsset,
         type: data.type,
-        totalPriceUsdNet: parseFloat(data.totalPriceUsd),
-        totalAmountAssetNet: parseFloat(data.totalAmountAsset),
+        totalPriceUsdNumber: parseFloat(data.totalPriceUsd),
+        totalAmountAssetNumber: parseFloat(data.totalAmountAsset),
     }
-};
-
-export function getNetHoldingSign(type: string){
-     return type =="Buy" ? 1: -1;
-}
-
-//TODO: use proper number impl for adding
-export function calcuateTotalNetHoldingAsset(data: TransactionDatum[]): number {
-    return data.reduce((acc, item) => {
-        return acc + item.totalAmountAssetNet * getNetHoldingSign(item.type);
-    }, 0)
-};
-
-export function calcuateTotatNetPriceUsd(data: TransactionDatum[]): number {
-    return data.reduce((acc, item) => {
-        return acc + item.totalPriceUsdNet * getNetHoldingSign(item.type);
-    }, 0);
 };
