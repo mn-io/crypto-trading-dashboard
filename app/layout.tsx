@@ -22,6 +22,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const consoleError = console.error;
+  console.error = (...args) => {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("hydrated but some attributes")
+    ) {
+      return; // ignore hydration mismatch warnings
+    }
+    consoleError(...args);
+  };
+
   return (
     <html lang="de">
       <Head>

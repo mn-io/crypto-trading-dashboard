@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAppDispatch } from "../store/hooks";
 import { addTransactionData } from "../store/transactionSlice";
+import { createNewTransactionDatum } from "../store/transaction";
 
 function validateInput(input: string) {
     if(input.length == 0) {
@@ -26,8 +27,6 @@ export default function TransactionModal({ isOpen, onClose }: { isOpen: boolean;
     const [error, setError] = useState("");
 
     const handleSubmit = (type: "Buy" | "Sell") => {
-        //TODO: remove dots, or test
-
         const priceValidated = validateInput(price);
         const amountValidated = validateInput(amount);
 
@@ -38,12 +37,12 @@ export default function TransactionModal({ isOpen, onClose }: { isOpen: boolean;
         }
 
         dispatch(
-            addTransactionData({
+            addTransactionData(createNewTransactionDatum({
                 time: Date.now(),
                 totalPriceUsd: priceValidated,
                 totalAmountAsset: amountValidated,
                 type,
-            })
+            }))
         );
 
         setPrice("");

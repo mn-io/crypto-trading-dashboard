@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchTransactionData, TransactionDatum } from "../store/transactionSlice";
+import { fetchTransactionData } from "../store/transactionSlice";
 import TransactionModal from "./add-trade-modal";
+import { getNetHoldingSign, TransactionDatum } from "../store/transaction";
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',
@@ -51,13 +52,15 @@ export default function AssetTransactionTable() {
               const date = dateFormatter.format(dateObj);
               const time = timeFormatter.format(dateObj);
 
-              const sign = datum.type == "Buy" ? "+" : "-"
+              const netHoldingsing = getNetHoldingSign(datum.type);
+              const netHoldingsingStr = netHoldingsing == 1 ? "+" : "-"
+              const netHoldingsingInvertedStr = netHoldingsing == -1 ? "+" : "-"
 
               return (
                 <tr key={datum.time + datum.type}>
                   <td className="text-left pb-2">{datum.type}</td>
                   <td className="text-center font-semibold">
-                    {sign + datum.totalAmountAsset + "BTC / " + sign + datum.totalPriceUsd + " $"}
+                    {netHoldingsingInvertedStr + datum.totalAmountAsset + "BTC / " + netHoldingsingStr + datum.totalPriceUsd + " $"}
                   </td>
                   <td className="text-right">
                     {date != today ? date + " " : ""}
