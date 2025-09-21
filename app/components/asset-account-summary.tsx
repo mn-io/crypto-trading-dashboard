@@ -14,8 +14,8 @@ export default function AssetAccountSummary() {
       </div>
       <div className="text-right text-sm">
         <p>Aavilable</p>
-        <p>{netHolding.totalAsset.toString()} BTC</p>
-        <p>{netHolding.totalUsd.toString()} $</p>
+        <p>{netHolding.totalAsset.toString()} <span className="font-bold">BTC</span></p>
+        <p>{netHolding.totalUsd.toString()} <span className="font-bold">$</span></p>
       </div>
     </section>
   );

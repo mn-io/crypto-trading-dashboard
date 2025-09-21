@@ -16,11 +16,11 @@ export const selectNetHolding = createSelector(
     return transactions.reduce<NetHolding>(
       (acc, tx) => {
         if (tx.type === "Buy") {
-          acc.totalAsset = new Big(acc.totalAsset).plus(tx.totalAmountAsset).toString();
-          acc.totalUsd = new Big(acc.totalUsd).plus(tx.totalPriceUsd).toString();
+          acc.totalAsset = new Big(acc.totalAsset).plus(tx.amountAsset).toString();
+          acc.totalUsd = new Big(acc.totalUsd).plus(tx.priceUsd).toString();
         } else if (tx.type === "Sell") {
-          acc.totalAsset = new Big(acc.totalAsset).minus(tx.totalAmountAsset).toString();;
-          acc.totalUsd = new Big(acc.totalUsd).minus(tx.totalPriceUsd).toString();;
+          acc.totalAsset = new Big(acc.totalAsset).minus(tx.amountAsset).toString();;
+          acc.totalUsd = new Big(acc.totalUsd).minus(tx.priceUsd).toString();;
         }
         return acc;
       },

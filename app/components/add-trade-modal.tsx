@@ -38,8 +38,8 @@ export default function TransactionModal({ isOpen, onClose }: { isOpen: boolean;
         dispatch(
             addTransactionData({
                 time: Date.now(),
-                totalPriceUsd: priceValidated,
-                totalAmountAsset: amountValidated,
+                priceUsd: priceValidated,
+                amountAsset: amountValidated,
                 type,
             })
         );

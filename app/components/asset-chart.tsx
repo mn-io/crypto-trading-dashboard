@@ -5,6 +5,7 @@ import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'rech
 
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { fetchChartData, ChartDatum } from "../store/chartSlice";
+import Big from "big.js";
 
 const paddingLabel = 4;
 const charWidth = 6;
@@ -89,25 +90,28 @@ function getTicks(min: number, max: number, prevClose: number | null, current: n
 
 export default function AssetChart() {
   const dispatch = useAppDispatch();
-  const data: ChartDatum[] = useAppSelector((state) => state.chart.data);
+  const transactions = useAppSelector((state) => state.transactions);
+  const chartData = useAppSelector((state) => state.chart.data);
   const [highlightedValue, setHighlightedValue] = useState<number | null>(null);
 
   useEffect(() => {
     dispatch(fetchChartData());
   }, [dispatch]);
 
-  const prevCloseRounded = !!data && data.length >= 1 ? Math.floor(parseFloat(data[0].priceUsd)) : null;
-  const prevCloseRoundedTwoDigits = !!data && data.length >= 1 ? Math.floor(parseFloat(data[0].priceUsd) * 100) / 100 : null;
-  const currentRounded = !!data && data.length >= 1 ? Math.floor(parseFloat(data[data.length - 1].priceUsd)) : null;
+  const prevCloseRounded = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd)) : null;
+  const prevCloseRoundedTwoDigits = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd) * 100) / 100 : null;
+  const currentRounded = !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[chartData.length - 1].priceUsd)) : null;
 
-  const { min: minValue, max: maxValue } = getMinMax(data);
+  const { min: minValue, max: maxValue } = getMinMax(chartData);
 
   const { minLabel, maxLabel } = {
     minLabel: roundToTwoDigits(minValue, false),
     maxLabel: roundToTwoDigits(maxValue, true)
   }
 
-  //TODO: check for gaps in data time, fix graph if needed 
+  const pnlBig = new Big(transactions.pnl).round(2, 0);
+  const isPositive = pnlBig.gte(0);
+  const pnlFormatted = (isPositive ? "+" : "") + pnlBig.toFixed(2);
 
   return (
     <section className="p-4">
@@ -115,19 +119,21 @@ export default function AssetChart() {
 
         <h2 className="text-xl font-semibold">BTC</h2>
         <h2 className="text-xl font-semibold">{prevCloseRoundedTwoDigits} $</h2>
-        <div className="">PnL: +12 $</div>
+        <div className={isPositive ? "text-green-500" : "text-red-500"}>
+          PnL: {pnlFormatted} $
+        </div>
 
         <div className="w-full flex-1">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               height={400}
-              data={data}
+              data={chartData}
               margin={{
                 top: 10,
               }}
               onMouseMove={(state) => {
                 const hoveredIndex = Number(state.activeIndex);
-                const hoveredDataPoint = data[hoveredIndex];
+                const hoveredDataPoint = chartData[hoveredIndex];
                 const asFloat = parseFloat(hoveredDataPoint?.priceUsd);
                 if (!isNaN(asFloat)) {
                   setHighlightedValue(Math.round(asFloat));

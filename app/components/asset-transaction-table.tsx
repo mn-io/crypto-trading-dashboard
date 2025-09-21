@@ -59,7 +59,7 @@ export default function AssetTransactionTable() {
                 <tr key={datum.time + datum.type}>
                   <td className="text-left pb-2">{datum.type}</td>
                   <td className="text-center font-semibold">
-                    {netHoldingsingInvertedStr + datum.totalAmountAsset + "BTC / " + netHoldingsingStr + datum.totalPriceUsd + " $"}
+                    {netHoldingsingInvertedStr + datum.amountAsset + "BTC / " + netHoldingsingStr + datum.priceUsd + " $"}
                   </td>
                   <td className="text-right">
                     {date != today ? date + " " : ""}
