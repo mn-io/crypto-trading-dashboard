@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useAppDispatch } from "../store/hooks";
 import { addTransactionData } from "../store/transactionSlice";
-import { createNewTransactionDatum } from "../store/transaction";
 
 function validateInput(input: string) {
     if(input.length == 0) {
@@ -37,12 +36,12 @@ export default function TransactionModal({ isOpen, onClose }: { isOpen: boolean;
         }
 
         dispatch(
-            addTransactionData(createNewTransactionDatum({
+            addTransactionData({
                 time: Date.now(),
                 totalPriceUsd: priceValidated,
                 totalAmountAsset: amountValidated,
                 type,
-            }))
+            })
         );
 
         setPrice("");

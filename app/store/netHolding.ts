@@ -1,34 +1,30 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { TransactionDatum } from "./transaction";
 import { RootState } from ".";
+import Big from "big.js"
+import { TransactionDatum } from "./transactionSlice";
 
 export type NetHolding = {
-    totalAsset: number;
-    totalUsd: number;
+  totalAsset: string;
+  totalUsd: string;
 };
-
-export function getNetHoldingSign(type: string) {
-    return type == "Buy" ? 1 : -1;
-}
 
 const selectTransactions = (state: RootState) => state.transactions.data;
 
 export const selectNetHolding = createSelector(
-    [selectTransactions],
-    (transactions: TransactionDatum[]): NetHolding => {
-        const initNetHolding = { totalAsset: 0, totalUsd: 0 } as NetHolding;
-        return transactions.reduce(
-            (acc, tx) => {
-                if (tx.type === "Buy") {
-                    acc.totalAsset += tx.totalAmountAssetNumber;
-                    acc.totalUsd += tx.totalPriceUsdNumber;
-                } else if (tx.type === "Sell") {
-                    acc.totalAsset -= tx.totalAmountAssetNumber;
-                    acc.totalUsd -= tx.totalPriceUsdNumber;
-                }
-                return acc;
-            },
-            initNetHolding
-        );
-    }
+  [selectTransactions],
+  (transactions: TransactionDatum[]): NetHolding => {
+    return transactions.reduce<NetHolding>(
+      (acc, tx) => {
+        if (tx.type === "Buy") {
+          acc.totalAsset = new Big(acc.totalAsset).plus(tx.totalAmountAsset).toString();
+          acc.totalUsd = new Big(acc.totalUsd).plus(tx.totalPriceUsd).toString();
+        } else if (tx.type === "Sell") {
+          acc.totalAsset = new Big(acc.totalAsset).minus(tx.totalAmountAsset).toString();;
+          acc.totalUsd = new Big(acc.totalUsd).minus(tx.totalPriceUsd).toString();;
+        }
+        return acc;
+      },
+      { totalAsset: "0", totalUsd: "0" }
+    );
+  }
 );

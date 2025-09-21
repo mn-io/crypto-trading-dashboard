@@ -1,5 +1,15 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { createNewTransactionDatum, TransactionDatum } from "./transaction";
+
+export type TransactionDatum = {
+    time: number;
+    totalPriceUsd: string;
+    totalAmountAsset: string;
+    type: "Buy" | "Sell";
+};
+
+export function getNetHoldingSign(type: string) {
+    return type == "Buy" ? 1 : -1;
+}
 
 interface TransactionState {
     data: TransactionDatum[];
@@ -13,15 +23,15 @@ const initialState: TransactionState = {
 
 const oneHour = 60 * 60 * 1000;
 const dataCache: TransactionDatum[] = [
-    createNewTransactionDatum({ time: Date.now() - oneHour * 1, totalPriceUsd: "50.23", totalAmountAsset: "0.0031", type: "Buy" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 2, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 3, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 4, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 5, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 6, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 7, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 8, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" }),
-    createNewTransactionDatum({ time: Date.now() - oneHour * 9, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" }),
+    { time: Date.now() - oneHour * 1, totalPriceUsd: "50.23", totalAmountAsset: "0.0031", type: "Buy" },
+    { time: Date.now() - oneHour * 2, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" },
+    { time: Date.now() - oneHour * 3, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" },
+    { time: Date.now() - oneHour * 4, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" },
+    { time: Date.now() - oneHour * 5, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" },
+    { time: Date.now() - oneHour * 6, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" },
+    { time: Date.now() - oneHour * 7, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" },
+    { time: Date.now() - oneHour * 8, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Sell" },
+    { time: Date.now() - oneHour * 9, totalPriceUsd: "50", totalAmountAsset: "0.00221", type: "Buy" },
 ];
 
 export const fetchTransactionData = createAsyncThunk("transaction/fetchData", async () => {

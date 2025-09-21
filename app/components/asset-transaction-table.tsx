@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { fetchTransactionData } from "../store/transactionSlice";
+import { fetchTransactionData, getNetHoldingSign, TransactionDatum } from "../store/transactionSlice";
 import TransactionModal from "./add-trade-modal";
-import { TransactionDatum } from "../store/transaction";
-import { getNetHoldingSign } from "../store/netHolding";
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',

@@ -96,8 +96,6 @@ export default function AssetChart() {
     dispatch(fetchChartData());
   }, [dispatch]);
 
-  // console.log("data received:", data)
-
   const prevCloseRounded = !!data && data.length >= 1 ? Math.floor(parseFloat(data[0].priceUsd)) : null;
   const prevCloseRoundedTwoDigits = !!data && data.length >= 1 ? Math.floor(parseFloat(data[0].priceUsd) * 100) / 100 : null;
   const currentRounded = !!data && data.length >= 1 ? Math.floor(parseFloat(data[data.length - 1].priceUsd)) : null;
