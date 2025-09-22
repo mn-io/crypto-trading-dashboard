@@ -40,26 +40,9 @@ describe('API /api/chart', () => {
     expect(dataCache.length).toEqual(118);
 
     const res = await fetch(localApi);
-
-    console.log(res);
     expect(res.status).toBe(200);
     const json = await res.json();
-    console.log(json);
-    //expect(json.data).toEqual(dataCache);
+    expect(json.data.length).toBe(118);
+    expect(json.data).toEqual(dataCache);
   }, 20000);
-
-  //   it('fetches from CoinCap API if no cache', async () => {
-  //     (fs.readFile as jest.Mock).mockRejectedValue(new Error('No file'));
-
-  //     // process.env.API_KEY_COINCAP = 'dummy';
-  //     // process.env.API_URI_COINCAP = 'https://api.fake.com';
-  //     // process.env.API_PRICE_PROPERTY_NAME = 'priceUsd';
-
-  //     const res = await fetch(localApi);
-  //     console.log(res);
-  //     expect(res.status).toBe(200);
-
-  //     const json = await res.json();
-  //     console.log(json);
-  //   });
 });
