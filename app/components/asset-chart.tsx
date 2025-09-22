@@ -110,7 +110,6 @@ function getTicks(
 
 const ChartDatumTooltip = ({ active, payload }: { active: boolean; payload: TooltipPayload }) => {
   if (active && payload && payload.length) {
-    console.log(payload);
     return (
       <div className="rounded-lg bg-white p-2 shadow-md">
         <p className="text-sm">Time: {new Date(payload[0].payload.time).toLocaleString('de-DE')}</p>
@@ -203,7 +202,6 @@ export default function AssetChart() {
                   <stop offset="95%" stopColor="#b2e4e5" stopOpacity={0} />
                 </linearGradient>
               </defs>
-
               {prevCloseRounded && (
                 <ReferenceLine
                   y={prevCloseRounded?.toString()}
