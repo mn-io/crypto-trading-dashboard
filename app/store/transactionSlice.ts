@@ -13,7 +13,7 @@ export interface TransactionState {
   pnl: string;
   totalAsset: string;
   totalCost: string; // Total cost of remaining assets
-  totalCash: string; // net holding in currency
+  totalCash: string; // Total net holding in currency
   status: 'idle' | 'loading' | 'failed';
 }
 

@@ -9,7 +9,11 @@
     "lint": "eslint 'app/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write 'app/**/*.{js,ts,tsx,json,css,md}'",
     "test": "jest",
-    "docker": "docker-compose down && docker-compose build && docker-compose up -d"
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "npm run docker:down && npm run docker:build && npm run docker:up && npm run docker:logs"
   },
   "jest": {
     "testEnvironment": "jsdom",
