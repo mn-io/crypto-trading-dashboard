@@ -30,27 +30,32 @@ function mapCoinCapDatum(datum: CoinCapDatum, earliestDate: number): ChartDatum 
   return { time: datum.time, price };
 }
 
-const CACHE_FILE = path.join(process.cwd(), 'chartCache.json');
+export const cacheFilePath = path.join(process.cwd(), 'chartCache.json');
 let dataCache: ChartDatum[] = [];
 
 async function writeChartCache() {
   try {
-    await fs.writeFile(CACHE_FILE, JSON.stringify(dataCache, null, 2), 'utf-8');
+    await fs.writeFile(cacheFilePath, JSON.stringify(dataCache, null, 2), 'utf-8');
   } catch (err) {
     console.error('Error writing chart cache:', err);
   }
 }
 
-async function readChartCache(): Promise<ChartDatum[]> {
+export async function readChartCacheIfEmpty(): Promise<ChartDatum[]> {
+  if (dataCache.length > 0) {
+    return dataCache;
+  }
+
   try {
-    const fileContent = await fs.readFile(CACHE_FILE, 'utf-8');
+    console.log(`reading cache data from file ${cacheFilePath}`);
+    const fileContent = await fs.readFile(cacheFilePath, 'utf-8');
     const data: ChartDatum[] = JSON.parse(fileContent);
     dataCache = data;
     return data;
   } catch (err) {
     console.error(
       'File not found/valid, but needed (otherwise set API_KEY in .env',
-      CACHE_FILE,
+      cacheFilePath,
       err,
     );
     return [];
@@ -62,8 +67,8 @@ export default async function handler(
   res: NextApiResponse<{ data: ChartDatum[] }>,
 ) {
   try {
-    if (!process.env.API_KEY_COINCAP && dataCache.length == 0) {
-      await readChartCache();
+    if (!process.env.API_KEY_COINCAP) {
+      await readChartCacheIfEmpty();
     }
 
     if (dataCache.length > 0) {
