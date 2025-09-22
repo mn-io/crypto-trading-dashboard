@@ -1,10 +1,10 @@
 'use client';
 
 import { useAppSelector } from '../store/hooks';
-import { selectNetHolding } from '../store/netHolding';
 
 export default function AssetAccountSummary() {
-  const netHolding = useAppSelector(selectNetHolding);
+  const totalAsset = useAppSelector((state) => state.transactions.totalAsset);
+  const totalCash = useAppSelector((state) => state.transactions.totalCash);
 
   return (
     <section className="p-4 flex items-start justify-between">
@@ -14,11 +14,10 @@ export default function AssetAccountSummary() {
       <div className="text-right text-sm">
         <p>Aavilable</p>
         <p>
-          {netHolding.totalAsset.toString()}{' '}
-          <span className="font-bold">{process.env.NEXT_PUBLIC_ASSET}</span>
+          {totalAsset} <span className="font-bold">{process.env.NEXT_PUBLIC_ASSET}</span>
         </p>
         <p>
-          {netHolding.totalUsd.toString()}{' '}
+          {totalCash}{' '}
           <span className="font-bold">{process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}</span>
         </p>
       </div>

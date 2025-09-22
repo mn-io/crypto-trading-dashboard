@@ -12,8 +12,9 @@ export type TransactionDatum = {
 interface TransactionState {
   data: TransactionDatum[];
   pnl: string;
-  remainingAsset: string;
-  remainingCost: string; // Total cost of remaining assets
+  totalAsset: string;
+  totalCost: string; // Total cost of remaining assets
+  totalCash: string; // net holding in currency
   status: 'idle' | 'loading' | 'failed';
 }
 
@@ -24,8 +25,9 @@ export function getNetHoldingSign(type: string) {
 const initialState: TransactionState = {
   data: [],
   pnl: '0',
-  remainingAsset: '0',
-  remainingCost: '0',
+  totalAsset: '0',
+  totalCost: '0',
+  totalCash: '0',
   status: 'idle',
 };
 
@@ -51,13 +53,15 @@ function addTransactionDataImpl(state: TransactionState, transaction: Transactio
 
   const price = new Big(transaction.price);
   const amount = new Big(transaction.amountAsset);
-  let totalAsset = new Big(state.remainingAsset);
-  let totalCost = new Big(state.remainingCost);
+  let totalAsset = new Big(state.totalAsset);
+  let totalCost = new Big(state.totalCost);
   let totalPnL = new Big(state.pnl);
+  let totalCash = new Big(state.totalCash);
 
   if (transaction.type === 'Buy') {
     totalCost = totalCost.plus(price.times(amount));
     totalAsset = totalAsset.plus(amount);
+    totalCash = totalCash.plus(price);
   } else if (transaction.type === 'Sell') {
     const avgCost = totalCost.div(totalAsset);
     const pnl = price.minus(avgCost).times(amount);
@@ -65,11 +69,13 @@ function addTransactionDataImpl(state: TransactionState, transaction: Transactio
 
     totalAsset = totalAsset.minus(amount);
     totalCost = totalCost.minus(avgCost.times(amount));
+    totalCash = totalCash.minus(price);
   }
 
-  state.remainingAsset = totalAsset.toString();
-  state.remainingCost = totalCost.toString();
+  state.totalAsset = totalAsset.toString();
+  state.totalCost = totalCost.toString();
   state.pnl = totalPnL.toString();
+  state.totalCash = totalCash.toString();
 }
 
 const transactionSlice = createSlice({
