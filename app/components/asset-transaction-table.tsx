@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -7,7 +8,10 @@ import {
   getNetHoldingSign,
   TransactionDatum,
 } from '../store/transactionSlice';
-import TransactionModal from './add-trade-modal';
+
+const TransactionModal = dynamic(() => import('./add-trade-modal'), {
+  ssr: false,
+});
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',
@@ -36,7 +40,7 @@ export default function AssetTransactionTable() {
 
   return (
     <section>
-      <TransactionModal isOpen={openDialog} onClose={() => setOpenDialog(false)} />
+      {openDialog && <TransactionModal isOpen={openDialog} onClose={() => setOpenDialog(false)} />}
 
       <div className="mb-4">
         <button
