@@ -5,7 +5,6 @@ import Big from 'big.js';
 import { useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart, Tooltip } from 'recharts';
 
-import { TooltipPayload } from 'recharts/types/state/tooltipSlice';
 import { getBig } from '../bigJsStringCache';
 import { ChartDatum, chartSelector } from '../store/chartSlice';
 import { useAppSelector } from '../store/hooks';
@@ -108,13 +107,19 @@ function getTicks(
   return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
 }
 
-const ChartDatumTooltip = ({ active, payload }: { active: boolean; payload: TooltipPayload }) => {
+interface ChartTooltipProps {
+  active?: boolean;
+  payload?: { payload: ChartDatum; value: string }[];
+}
+
+const ChartDatumTooltip = ({ active, payload }: ChartTooltipProps) => {
   if (active && payload && payload.length) {
+    const datum = payload[0].payload;
     return (
       <div className="rounded-lg bg-white p-2 shadow-md">
-        <p className="text-sm">Time: {new Date(payload[0].payload.time).toLocaleString('de-DE')}</p>
+        <p className="text-sm">Time: {new Date(datum.time).toLocaleString('de-DE')}</p>
         <p className="text-sm">
-          Price: {payload[0].value} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
+          Price: {datum.price} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
         </p>
       </div>
     );
@@ -243,6 +248,7 @@ export default function AssetChart() {
                 />
               )}
 
+              {/* TODO: fix */}
               <Tooltip content={<ChartDatumTooltip />} />
 
               <YAxis
