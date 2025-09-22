@@ -8,13 +8,13 @@ import { addTransactionData } from '../store/transactionSlice';
 
 function validateInput(input: string) {
   if (input.length == 0) {
-    return;
+    return null;
   }
 
-  const noDots = input.replace(/\./g, '');
-  const isFloat = /^\d*(\.\d+)?$/.test(noDots); // no - or + allowed
+  const noComma = input.replace(/\,/g, '');
+  const isFloat = /^\d*(\.\d+)?$/.test(noComma); // no - or + allowed
   if (isFloat) {
-    return noDots;
+    return noComma;
   }
 
   return null;
@@ -44,7 +44,7 @@ export default function TransactionModal({
     }
 
     const chartDatum = chartData[chartData.length - 1];
-    const cost = chartDatum.priceUsd;
+    const cost = chartDatum.price;
     if (price === '' && amount !== '') {
       try {
         setCalculatedPrice(new Big(cost).mul(amount).toString());
@@ -83,8 +83,11 @@ export default function TransactionModal({
   };
 
   const handleSubmit = (type: 'Buy' | 'Sell') => {
-    const priceValidated = validateInput(price);
-    const amountValidated = validateInput(amount);
+    const actualPrice = price === '' ? calculatedPrice : price;
+    const actualAmount = amount === '' ? calculatedAmount : amount;
+
+    const priceValidated = validateInput(actualPrice);
+    const amountValidated = validateInput(actualAmount);
 
     if (!priceValidated || !amountValidated) {
       setError(
@@ -96,7 +99,7 @@ export default function TransactionModal({
     dispatch(
       addTransactionData({
         time: Date.now(),
-        priceUsd: priceValidated,
+        price: priceValidated,
         amountAsset: amountValidated,
         type,
       }),
@@ -106,6 +109,10 @@ export default function TransactionModal({
     setAmount('');
     setError('');
     onClose();
+    setAmountCleared(false);
+    setPriceCleared(false);
+    setCalculatedAmount('');
+    setCalculatedPrice('');
   };
 
   if (!isOpen) return null;

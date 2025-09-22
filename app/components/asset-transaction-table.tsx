@@ -66,7 +66,7 @@ export default function AssetTransactionTable() {
                     {`${
                       netHoldingsingInvertedStr + datum.amountAsset
                     } ${process.env.NEXT_PUBLIC_ASSET} / 
-                    ${netHoldingsingStr}${datum.priceUsd} ${process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}`}
+                    ${netHoldingsingStr}${datum.price} ${process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}`}
                   </td>
                   <td className="text-right">
                     {date != today ? date + ' ' : ''}

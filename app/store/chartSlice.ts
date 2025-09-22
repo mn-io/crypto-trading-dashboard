@@ -1,17 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-export type ChartDatum = { time: number; priceUsd: string };
+const hours24InMillis = 24 * 60 * 60 * 1000;
+
+export type ChartDatum = { time: number; price: string };
 
 interface ChartState {
   data: ChartDatum[];
   status: 'idle' | 'loading' | 'failed';
-  maxPoints: number;
 }
 
 const initialState: ChartState = {
   data: [],
   status: 'idle',
-  maxPoints: -1, // -1 = use all points (data.length)
 };
 
 let lastFetch = 0;
@@ -26,16 +26,21 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
   }
   lastFetch = now;
 
-  // interval choices m1 m5 m15 m30 h1 h2 h6 h12 d1
-  const response = await fetch('https://rest.coincap.io/v3/assets/bitcoin/history?interval=d1', {
+  const response = await fetch(process.env.NEXT_PUBLIC_API_URI_COINCAP || '', {
     headers: {
       Authorization: 'Bearer ' + process.env.NEXT_PUBLIC_API_KEY_COINCAP,
       'Content-Type': 'application/json',
     },
   });
 
-  const jsonObj = await response.json();
-  dataCache = jsonObj.data as ChartDatum[];
+  const data = (await response.json()).data as any[];
+  dataCache = data.map(
+    (datum) =>
+      ({
+        time: datum.time,
+        price: datum[process.env.NEXT_PUBLIC_API_CURRENCY || ''],
+      }) as ChartDatum,
+  );
   return dataCache;
 });
 
@@ -49,11 +54,8 @@ const chartSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(fetchChartData.fulfilled, (state, action) => {
-        if (state.maxPoints == -1) {
-          state.data = action.payload;
-        } else {
-          state.data = action.payload.slice(0, state.maxPoints);
-        }
+        const hours24AgoInMillis = Date.now() - hours24InMillis;
+        state.data = action.payload.filter((chartDatum) => chartDatum.time > hours24AgoInMillis);
         state.status = 'idle';
       })
       .addCase(fetchChartData.rejected, (state) => {

@@ -20,7 +20,7 @@ function getMinMax(data: ChartDatum[]): { min: Big; max: Big } {
 
   for (const d of data) {
     try {
-      const value = new Big(d.priceUsd);
+      const value = new Big(d.price);
 
       if (value.lt(min)) min = value;
       if (value.gt(max)) max = value;
@@ -116,14 +116,14 @@ export default function AssetChart() {
   }, [dispatch]);
 
   const hasData = chartData && chartData.length >= 1;
-  const prevCloseRounded = hasData ? new Big(chartData[0].priceUsd).round(0, Big.roundDown) : null;
+  const prevCloseRounded = hasData ? new Big(chartData[0].price).round(0, Big.roundDown) : null;
 
   const prevCloseRoundedTwoDigits = hasData
-    ? new Big(chartData[0].priceUsd).times(100).round(0, Big.roundDown).div(100)
+    ? new Big(chartData[0].price).times(100).round(0, Big.roundDown).div(100)
     : null;
 
   const currentRounded = hasData
-    ? new Big(chartData[chartData.length - 1].priceUsd).round(0, Big.roundDown)
+    ? new Big(chartData[chartData.length - 1].price).round(0, Big.roundDown)
     : null;
 
   const { min: minValue, max: maxValue } = getMinMax(chartData);
@@ -159,9 +159,9 @@ export default function AssetChart() {
               onMouseMove={(state) => {
                 const hoveredIndex = Number(state.activeIndex);
                 const hoveredDataPoint = chartData[hoveredIndex];
-                if (hoveredDataPoint?.priceUsd) {
+                if (hoveredDataPoint?.price) {
                   try {
-                    const value = new Big(hoveredDataPoint.priceUsd);
+                    const value = new Big(hoveredDataPoint.price);
                     setHighlightedValue(value.round(0, Big.roundHalfUp).toString());
                   } catch {
                     setHighlightedValue(null);
@@ -284,7 +284,7 @@ export default function AssetChart() {
               <Area
                 type="linear"
                 name=""
-                dataKey="priceUsd"
+                dataKey="price"
                 stroke="var(--color-graph-stroke)"
                 strokeWidth={2}
                 fill="url(#colorUv)"

@@ -3,7 +3,7 @@ import Big from 'big.js';
 
 export type TransactionDatum = {
   time: number;
-  priceUsd: string;
+  price: string;
   amountAsset: string;
   type: 'Buy' | 'Sell';
 };
@@ -30,15 +30,15 @@ const initialState: TransactionState = {
 
 const oneHour = 60 * 60 * 1000;
 const dataCache: TransactionDatum[] = [
-  { time: Date.now() - oneHour * 1, priceUsd: '50.23', amountAsset: '0.0031', type: 'Buy' },
-  { time: Date.now() - oneHour * 2, priceUsd: '50', amountAsset: '0.00221', type: 'Sell' },
-  { time: Date.now() - oneHour * 3, priceUsd: '50', amountAsset: '0.00221', type: 'Buy' },
-  { time: Date.now() - oneHour * 4, priceUsd: '50', amountAsset: '0.00221', type: 'Sell' },
-  { time: Date.now() - oneHour * 5, priceUsd: '50', amountAsset: '0.00221', type: 'Buy' },
-  { time: Date.now() - oneHour * 6, priceUsd: '50', amountAsset: '0.00221', type: 'Sell' },
-  { time: Date.now() - oneHour * 7, priceUsd: '50', amountAsset: '0.00221', type: 'Buy' },
-  { time: Date.now() - oneHour * 8, priceUsd: '50', amountAsset: '0.00221', type: 'Sell' },
-  { time: Date.now() - oneHour * 9, priceUsd: '50', amountAsset: '0.00221', type: 'Buy' },
+  { time: Date.now() - oneHour * 1, price: '50.23', amountAsset: '0.0031', type: 'Buy' },
+  { time: Date.now() - oneHour * 2, price: '50', amountAsset: '0.00221', type: 'Sell' },
+  { time: Date.now() - oneHour * 3, price: '50', amountAsset: '0.00221', type: 'Buy' },
+  { time: Date.now() - oneHour * 4, price: '50', amountAsset: '0.00221', type: 'Sell' },
+  { time: Date.now() - oneHour * 5, price: '50', amountAsset: '0.00221', type: 'Buy' },
+  { time: Date.now() - oneHour * 6, price: '50', amountAsset: '0.00221', type: 'Sell' },
+  { time: Date.now() - oneHour * 7, price: '50', amountAsset: '0.00221', type: 'Buy' },
+  { time: Date.now() - oneHour * 8, price: '50', amountAsset: '0.00221', type: 'Sell' },
+  { time: Date.now() - oneHour * 9, price: '50', amountAsset: '0.00221', type: 'Buy' },
 ];
 
 export const fetchTransactionData = createAsyncThunk('transaction/fetchData', async () => {
@@ -48,7 +48,7 @@ export const fetchTransactionData = createAsyncThunk('transaction/fetchData', as
 function addTransactionDataImpl(state: TransactionState, transaction: TransactionDatum) {
   state.data.unshift(transaction);
 
-  const price = new Big(transaction.priceUsd);
+  const price = new Big(transaction.price);
   const amount = new Big(transaction.amountAsset);
   let totalAsset = new Big(state.remainingAsset);
   let totalCost = new Big(state.remainingCost);

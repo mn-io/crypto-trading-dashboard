@@ -17,10 +17,10 @@ export const selectNetHolding = createSelector(
       (acc, tx) => {
         if (tx.type === 'Buy') {
           acc.totalAsset = new Big(acc.totalAsset).plus(tx.amountAsset).toString();
-          acc.totalUsd = new Big(acc.totalUsd).plus(tx.priceUsd).toString();
+          acc.totalUsd = new Big(acc.totalUsd).plus(tx.price).toString();
         } else if (tx.type === 'Sell') {
           acc.totalAsset = new Big(acc.totalAsset).minus(tx.amountAsset).toString();
-          acc.totalUsd = new Big(acc.totalUsd).minus(tx.priceUsd).toString();
+          acc.totalUsd = new Big(acc.totalUsd).minus(tx.price).toString();
         }
         return acc;
       },
