@@ -49,6 +49,7 @@ export default function TransactionModal({
       try {
         setCalculatedPrice(new Big(cost).mul(amount).toString());
       } catch (error) {
+        console.error(error);
         setCalculatedPrice('');
         return;
       }
@@ -57,6 +58,7 @@ export default function TransactionModal({
       try {
         setCalculatedAmount(new Big(price).div(cost).toString());
       } catch (error) {
+        console.error(error);
         setCalculatedAmount('');
       }
     }

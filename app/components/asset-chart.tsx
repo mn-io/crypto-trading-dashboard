@@ -115,7 +115,30 @@ export default function AssetChart() {
     dispatch(fetchChartData());
   }, [dispatch]);
 
-  const hasData = chartData && chartData.length >= 1;
+  const hasData =
+    chartData &&
+    chartData.length > 0 &&
+    (() => {
+      try {
+        new Big(chartData[0].price);
+        return true;
+      } catch {
+        console.error('Price value is invalid, not a number (big.js), in:', chartData[0]);
+        return false;
+      }
+    })();
+
+  if (!hasData) {
+    return (
+      <section className="p-4">
+        <div className="h-64 flex flex-col items-center justify-center space-y-2">
+          <h2 className="text-xl font-semibold">{process.env.NEXT_PUBLIC_ASSET}</h2>
+          <h3>No chart data available</h3>
+        </div>
+      </section>
+    );
+  }
+
   const prevCloseRounded = hasData ? new Big(chartData[0].price).round(0, Big.roundDown) : null;
 
   const prevCloseRoundedTwoDigits = hasData

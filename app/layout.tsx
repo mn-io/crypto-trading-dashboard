@@ -6,6 +6,7 @@ import Head from 'next/head';
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -22,14 +23,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const consoleError = console.error;
-  console.error = (...args) => {
-    if (typeof args[0] === 'string' && args[0].includes('hydrated but some attributes')) {
-      return; // ignore hydration mismatch warnings
-    }
-    consoleError(...args);
-  };
-
   return (
     <html lang="de">
       <Head>

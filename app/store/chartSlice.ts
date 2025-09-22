@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
+const lastFetchMinAge = 5000;
 
 export type ChartDatum = { time: number; price: string };
 
@@ -20,8 +21,7 @@ let dataCache: ChartDatum[] = [];
 
 export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
   const now = Date.now();
-  if (now - lastFetch < 5000) {
-    // max every 5 sec
+  if (now - lastFetch < lastFetchMinAge) {
     return dataCache;
   }
   lastFetch = now;
@@ -34,13 +34,20 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
   });
 
   const data = (await response.json()).data as any[];
-  dataCache = data.map(
-    (datum) =>
-      ({
-        time: datum.time,
-        price: datum[process.env.NEXT_PUBLIC_API_CURRENCY || ''],
-      }) as ChartDatum,
-  );
+  dataCache = data.map((datum) => {
+    const price = datum[process.env.NEXT_PUBLIC_API_PRICE_PROPERTY_NAME || ''];
+    if (!price) {
+      console.error(
+        `price could not be retrieved from incoming data, looking for property with name '${process.env.NEXT_PUBLIC_API_PRICE_PROPERTY_NAME}' in`,
+        datum,
+      );
+    }
+    return {
+      time: datum.time,
+      price,
+    } as ChartDatum;
+  });
+
   return dataCache;
 });
 
@@ -55,7 +62,10 @@ const chartSlice = createSlice({
       })
       .addCase(fetchChartData.fulfilled, (state, action) => {
         const hours24AgoInMillis = Date.now() - hours24InMillis;
-        state.data = action.payload.filter((chartDatum) => chartDatum.time > hours24AgoInMillis);
+        state.data = action.payload.filter(
+          (chartDatum) =>
+            chartDatum.time > hours24AgoInMillis && !!chartDatum.price && chartDatum.price !== '',
+        );
         state.status = 'idle';
       })
       .addCase(fetchChartData.rejected, (state) => {
