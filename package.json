@@ -7,9 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint 'app/**/*.{js,ts,tsx}' --fix",
-    "format": "prettier --write 'app/**/*.{js,ts,tsx,json,css,md}'",
-    "check": "eslint",
-    "migrate": "npx @eslint/migrate-config .eslintrc.json"
+    "format": "prettier --write 'app/**/*.{js,ts,tsx,json,css,md}'"
   },
   "dependencies": {
     "@eslint/compat": "^1.3.2",

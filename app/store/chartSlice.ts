@@ -33,6 +33,7 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await response.json()).data as any[];
   dataCache = data.map((datum) => {
     const price = datum[process.env.NEXT_PUBLIC_API_PRICE_PROPERTY_NAME || ''];

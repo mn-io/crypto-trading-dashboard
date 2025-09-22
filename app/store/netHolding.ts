@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
+// eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 import { TransactionDatum } from './transactionSlice';
 import { RootState } from '.';

@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+// eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 
 export type TransactionDatum = {

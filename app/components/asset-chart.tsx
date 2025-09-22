@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 import { useEffect, useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';

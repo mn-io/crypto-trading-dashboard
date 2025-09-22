@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 import { useEffect, useState } from 'react';
 import { ChartDatum } from '../store/chartSlice';
@@ -11,7 +12,7 @@ function validateInput(input: string) {
     return null;
   }
 
-  const noComma = input.replace(/\,/g, '');
+  const noComma = input.replace(/,/g, '');
   const isFloat = /^\d*(\.\d+)?$/.test(noComma); // no - or + allowed
   if (isFloat) {
     return noComma;
