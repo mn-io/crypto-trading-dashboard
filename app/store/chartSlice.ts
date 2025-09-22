@@ -26,7 +26,7 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
   }
   console.log(`fetching new chart data from internal chart API`);
 
-  const response = await fetch('/api/chart');
+  const response = await fetch('${process.envNEXT_PUBLIC_HOST}/api/chart');
 
   if (response.status !== 200) {
     console.error(`fetching new chart data failed with ${response.status}`, ' clearing data cache');

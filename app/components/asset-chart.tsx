@@ -44,9 +44,7 @@ function roundToTwoDigits(num: Big, roundUp: boolean): Big {
   const digits = getBig(10).pow(exponent - 1);
   const bigNum = num.div(digits);
 
-  const rounded = roundUp
-    ? bigNum.round(0, Big.roundUp) // ceil equivalent
-    : bigNum.round(0, Big.roundDown); // floor equivalent
+  const rounded = roundUp ? bigNum.round(0, Big.roundUp) : bigNum.round(0, Big.roundDown);
 
   return rounded.times(digits);
 }
@@ -248,7 +246,6 @@ export default function AssetChart() {
                 />
               )}
 
-              {/* TODO: fix */}
               <Tooltip content={<ChartDatumTooltip />} />
 
               <YAxis

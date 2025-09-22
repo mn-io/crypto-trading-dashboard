@@ -50,6 +50,7 @@ export async function readChartCacheIfEmpty(): Promise<ChartDatum[]> {
     console.log(`reading cache data from file ${cacheFilePath}`);
     const fileContent = await fs.readFile(cacheFilePath, 'utf-8');
     const data: ChartDatum[] = JSON.parse(fileContent);
+    console.log(`data loaded, length: ${data.length}`);
     dataCache = data;
     return data;
   } catch (err) {
@@ -72,7 +73,7 @@ export default async function handler(
     }
 
     if (dataCache.length > 0) {
-      console.log('serving from data cache');
+      console.log(`serving from data cache, length: ${dataCache.length}`);
       res.status(200).json({ data: dataCache });
       return;
     }
