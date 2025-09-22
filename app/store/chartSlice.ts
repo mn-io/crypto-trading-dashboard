@@ -25,6 +25,7 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
     return dataCache;
   }
   lastFetch = now;
+  console.log('fetching new chart data from ', process.env.NEXT_PUBLIC_API_URI_COINCAP);
 
   const response = await fetch(process.env.NEXT_PUBLIC_API_URI_COINCAP || '', {
     headers: {

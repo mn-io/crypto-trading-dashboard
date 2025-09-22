@@ -2,11 +2,11 @@
 
 // eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';
 
-import { fetchChartData, ChartDatum } from '../store/chartSlice';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { ChartDatum } from '../store/chartSlice';
+import { useAppSelector } from '../store/hooks';
 
 const paddingLabel = 4;
 const charWidth = 6;
@@ -107,14 +107,9 @@ function getTicks(
 }
 
 export default function AssetChart() {
-  const dispatch = useAppDispatch();
   const transactions = useAppSelector((state) => state.transactions);
   const chartData = useAppSelector((state) => state.chart.data);
   const [highlightedValue, setHighlightedValue] = useState<string | null>(null);
-
-  useEffect(() => {
-    dispatch(fetchChartData());
-  }, [dispatch]);
 
   const hasData =
     chartData &&
