@@ -5,7 +5,7 @@ import Big from 'big.js';
 import { useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';
 
-import { ChartDatum } from '../store/chartSlice';
+import { ChartDatum, chartSelector } from '../store/chartSlice';
 import { useAppSelector } from '../store/hooks';
 
 const paddingLabel = 4;
@@ -108,21 +108,10 @@ function getTicks(
 
 export default function AssetChart() {
   const transactions = useAppSelector((state) => state.transactions);
-  const chartData = useAppSelector((state) => state.chart.data);
+  const chartData = useAppSelector(chartSelector);
   const [highlightedValue, setHighlightedValue] = useState<string | null>(null);
 
-  const hasData =
-    chartData &&
-    chartData.length > 0 &&
-    (() => {
-      try {
-        new Big(chartData[0].price);
-        return true;
-      } catch {
-        console.error('Price value is invalid, not a number (big.js), in:', chartData[0]);
-        return false;
-      }
-    })();
+  const hasData = chartData.length > 0;
 
   if (!hasData) {
     return (

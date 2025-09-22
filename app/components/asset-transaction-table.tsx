@@ -3,11 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
-import {
-  fetchTransactionData,
-  getNetHoldingSign,
-  TransactionDatum,
-} from '../store/transactionSlice';
+import { fetchTransactionData, getNetHoldingSign } from '../store/transactionSlice';
 
 const TransactionModal = dynamic(() => import('./add-trade-modal'), {
   ssr: false,
@@ -35,7 +31,7 @@ const timeFormatter = new Intl.DateTimeFormat('de-DE', {
 
 export default function AssetTransactionTable() {
   const dispatch = useAppDispatch();
-  const data: TransactionDatum[] = useAppSelector((state) => state.transactions.data);
+  const data = useAppSelector((state) => state.transactions.data);
   const [openDialog, setOpenDialog] = useState(false);
 
   useEffect(() => {

@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+// eslint-disable-next-line import/no-named-as-default
+import Big from 'big.js';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
 const lastFetchMinAge = 5000;
@@ -25,7 +27,7 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
     return dataCache;
   }
   lastFetch = now;
-  console.log('fetching new chart data from ', process.env.NEXT_PUBLIC_API_URI_COINCAP);
+  console.log(`fetching new chart data from ${process.env.NEXT_PUBLIC_API_URI_COINCAP}`);
 
   const response = await fetch(process.env.NEXT_PUBLIC_API_URI_COINCAP || '', {
     headers: {
@@ -33,6 +35,12 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
       'Content-Type': 'application/json',
     },
   });
+
+  if (response.status !== 200) {
+    console.error(`fetching new chart data failed with ${response.status}`, ' clearing data cache');
+    dataCache = [];
+    return [];
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await response.json()).data as any[];
@@ -75,5 +83,23 @@ const chartSlice = createSlice({
       });
   },
 });
+
+const emptyChart: ChartDatum[] = [];
+export const chartSelector = (state: { chart: { data: ChartDatum[] } }) => {
+  const validData =
+    state.chart.data &&
+    state.chart.data.length > 0 &&
+    (() => {
+      try {
+        state.chart.data.forEach((datum) => new Big(datum.price));
+        return true;
+      } catch {
+        console.error('Price value is invalid, not a number (big.js), in:', state.chart.data[0]);
+        return false;
+      }
+    })();
+
+  return validData ? state.chart.data : emptyChart;
+};
 
 export default chartSlice.reducer;

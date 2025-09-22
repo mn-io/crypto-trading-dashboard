@@ -9,7 +9,7 @@ export type TransactionDatum = {
   type: 'Buy' | 'Sell';
 };
 
-interface TransactionState {
+export interface TransactionState {
   data: TransactionDatum[];
   pnl: string;
   totalAsset: string;

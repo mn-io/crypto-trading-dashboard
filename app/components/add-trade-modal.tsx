@@ -3,7 +3,7 @@
 // eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 import { useEffect, useState } from 'react';
-import { ChartDatum } from '../store/chartSlice';
+import { chartSelector } from '../store/chartSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addTransactionData } from '../store/transactionSlice';
 
@@ -29,7 +29,7 @@ export default function TransactionModal({
   onClose: () => void;
 }) {
   const dispatch = useAppDispatch();
-  const chartData: ChartDatum[] = useAppSelector((state) => state.chart.data);
+  const chartData = useAppSelector(chartSelector);
 
   const [price, setPrice] = useState('');
   const [calculatedPrice, setCalculatedPrice] = useState('');
