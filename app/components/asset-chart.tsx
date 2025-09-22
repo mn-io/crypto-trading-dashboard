@@ -10,73 +10,86 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 const paddingLabel = 4;
 const charWidth = 6;
 
-function getMinMax(data: ChartDatum[]): { min: number; max: number } {
+function getMinMax(data: ChartDatum[]): { min: Big; max: Big } {
   if (!data || data.length === 0) {
-    return { min: 0, max: 0 };
+    return { min: new Big(0), max: new Big(0) };
   }
 
-  let min = Number.POSITIVE_INFINITY;
-  let max = Number.NEGATIVE_INFINITY;
+  let min: Big = new Big(Number.MAX_SAFE_INTEGER);
+  let max: Big = new Big(Number.MIN_SAFE_INTEGER);
 
   for (const d of data) {
-    const value = parseFloat(d.priceUsd);
-    if (!isNaN(value)) {
-      if (value < min) min = value;
-      if (value > max) max = value;
+    try {
+      const value = new Big(d.priceUsd);
+
+      if (value.lt(min)) min = value;
+      if (value.gt(max)) max = value;
+    } catch {
+      // skip invalid entries
     }
   }
 
   return { min, max };
 }
 
-function roundToTwoDigits(num: number, roundUp: boolean): number {
-  const digits = Math.pow(10, Math.floor(Math.log10(num)) - 1); // - 1: 2digits-1
-  if (roundUp) {
-    return Math.ceil(num / digits) * digits;
-  } else {
-    return Math.floor(num / digits) * digits;
+function roundToTwoDigits(num: Big, roundUp: boolean): Big {
+  if (num.eq(new Big(0))) {
+    return new Big(0);
   }
+
+  // compute scaling factor like 10^(log10(num) - 1)
+  const exponent = num.e; // e.g. for 1234 -> 3
+  const digits = new Big(10).pow(exponent - 1);
+  const bigNum = num.div(digits);
+
+  const rounded = roundUp
+    ? bigNum.round(0, Big.roundUp) // ceil equivalent
+    : bigNum.round(0, Big.roundDown); // floor equivalent
+
+  return rounded.times(digits);
 }
 
-function filterCloseValues(values: number[], threshold = 0.1): number[] {
-  if (!values || values.length === 0) return [];
+function createRoundedRectPath(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  corners = { topLeft: true, topRight: true, bottomRight: true, bottomLeft: true },
+): string {
+  const tl = corners.topLeft ? radius : 0;
+  const tr = corners.topRight ? radius : 0;
+  const br = corners.bottomRight ? radius : 0;
+  const bl = corners.bottomLeft ? radius : 0;
 
-  const sorted = [...values].sort((a, b) => a - b);
-  const result: number[] = [];
-
-  for (const val of sorted) {
-    if (result.length === 0) {
-      result.push(val);
-    } else {
-      const prev = result[result.length - 1];
-      if (Math.abs(val - prev) / prev >= threshold) {
-        // far enough -> keep
-        result.push(val);
-      } else {
-        // too close -> replace previous with current
-        result[result.length - 1] = val;
-      }
-    }
-  }
-
-  return result;
+  return `
+    M ${x + tl} ${y}
+    H ${x + width - tr}
+    ${tr ? `A ${tr} ${tr} 0 0 1 ${x + width} ${y + tr}` : ''}
+    V ${y + height - br}
+    ${br ? `A ${br} ${br} 0 0 1 ${x + width - br} ${y + height}` : ''}
+    H ${x + bl}
+    ${bl ? `A ${bl} ${bl} 0 0 1 ${x} ${y + height - bl}` : ''}
+    V ${y + tl}
+    ${tl ? `A ${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ''}
+    Z
+  `;
 }
 
 function getTicks(
-  min: number,
-  max: number,
-  prevClose: number | null,
-  current: number | null,
-  highlightedValue: number | null,
+  min: Big,
+  max: Big,
+  prevClose: Big | null,
+  current: Big | null,
+  highlightedValue: string | null,
   steps = 6,
-): number[] {
-  let ticks: number[] = [];
+): string[] {
+  const ticks: Big[] = [];
   for (let i = 0; i < steps; i++) {
     const ratio = i / (steps - 1);
-    const value = min + (max - min) * ratio;
+    const value = new Big(max).minus(min).times(ratio).plus(min);
     ticks.push(value);
   }
-
   if (prevClose) {
     ticks.push(prevClose);
   }
@@ -85,36 +98,33 @@ function getTicks(
     ticks.push(current);
   }
 
-  ticks.sort((a, b) => a - b); // sort ascending
-  ticks = filterCloseValues(ticks);
   if (highlightedValue) {
-    ticks.push(highlightedValue);
-    ticks.sort((a, b) => a - b); // sort ascending
+    ticks.push(new Big(highlightedValue));
   }
 
-  return ticks;
+  return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
 }
 
 export default function AssetChart() {
   const dispatch = useAppDispatch();
   const transactions = useAppSelector((state) => state.transactions);
   const chartData = useAppSelector((state) => state.chart.data);
-  const [highlightedValue, setHighlightedValue] = useState<number | null>(null);
+  const [highlightedValue, setHighlightedValue] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchChartData());
   }, [dispatch]);
 
-  const prevCloseRounded =
-    !!chartData && chartData.length >= 1 ? Math.floor(parseFloat(chartData[0].priceUsd)) : null;
-  const prevCloseRoundedTwoDigits =
-    !!chartData && chartData.length >= 1
-      ? Math.floor(parseFloat(chartData[0].priceUsd) * 100) / 100
-      : null;
-  const currentRounded =
-    !!chartData && chartData.length >= 1
-      ? Math.floor(parseFloat(chartData[chartData.length - 1].priceUsd))
-      : null;
+  const hasData = chartData && chartData.length >= 1;
+  const prevCloseRounded = hasData ? new Big(chartData[0].priceUsd).round(0, Big.roundDown) : null;
+
+  const prevCloseRoundedTwoDigits = hasData
+    ? new Big(chartData[0].priceUsd).times(100).round(0, Big.roundDown).div(100)
+    : null;
+
+  const currentRounded = hasData
+    ? new Big(chartData[chartData.length - 1].priceUsd).round(0, Big.roundDown)
+    : null;
 
   const { min: minValue, max: maxValue } = getMinMax(chartData);
 
@@ -125,14 +135,18 @@ export default function AssetChart() {
 
   const pnlBig = new Big(transactions.pnl).round(2, 0);
   const isPositive = pnlBig.gte(0);
-  const pnlFormatted = (isPositive ? '+' : '') + pnlBig.toFixed(2);
+  const pnlFormatted = (isPositive ? '+' : '') + pnlBig.toFixed(2).toString();
 
   return (
     <section className="p-4">
       <div className="h-64 flex flex-col items-center justify-center space-y-2">
-        <h2 className="text-xl font-semibold">BTC</h2>
-        <h2 className="text-xl font-semibold">{prevCloseRoundedTwoDigits} $</h2>
-        <div className={isPositive ? 'text-green-500' : 'text-red-500'}>PnL: {pnlFormatted} $</div>
+        <h2 className="text-xl font-semibold">{process.env.NEXT_PUBLIC_ASSET}</h2>
+        <h2 className="text-xl font-semibold">
+          {prevCloseRoundedTwoDigits?.toString()} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
+        </h2>
+        <div className={isPositive ? 'text-green-500' : 'text-red-500'}>
+          PnL: {pnlFormatted} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
+        </div>
 
         <div className="w-full flex-1">
           <ResponsiveContainer width="100%" height="100%">
@@ -145,9 +159,13 @@ export default function AssetChart() {
               onMouseMove={(state) => {
                 const hoveredIndex = Number(state.activeIndex);
                 const hoveredDataPoint = chartData[hoveredIndex];
-                const asFloat = parseFloat(hoveredDataPoint?.priceUsd);
-                if (!isNaN(asFloat)) {
-                  setHighlightedValue(Math.round(asFloat));
+                if (hoveredDataPoint?.priceUsd) {
+                  try {
+                    const value = new Big(hoveredDataPoint.priceUsd);
+                    setHighlightedValue(value.round(0, Big.roundHalfUp).toString());
+                  } catch {
+                    setHighlightedValue(null);
+                  }
                 } else {
                   setHighlightedValue(null);
                 }
@@ -163,22 +181,29 @@ export default function AssetChart() {
 
               {prevCloseRounded && (
                 <ReferenceLine
-                  y={prevCloseRounded}
-                  stroke="var(--color-graph-stroke)"
+                  y={prevCloseRounded?.toString()}
+                  stroke="var(--color-graph-ref-line)"
                   strokeWidth={1}
                   strokeDasharray="2 3"
                   label={({ viewBox }) => {
                     const { x, y, width } = viewBox;
                     return (
                       <g>
-                        <rect
-                          x={width - charWidth * 10}
-                          y={y - 12}
-                          width={100}
-                          height={16}
+                        <path
+                          d={createRoundedRectPath(
+                            width - charWidth * 10,
+                            y - 12,
+                            charWidth * 15,
+                            16,
+                            4,
+                            {
+                              topLeft: true,
+                              topRight: false,
+                              bottomRight: false,
+                              bottomLeft: true,
+                            },
+                          )}
                           fill="var(--color-graph-fill)"
-                          rx={4}
-                          ry={4}
                         />
                         <text
                           x={x + width - paddingLabel}
@@ -208,40 +233,46 @@ export default function AssetChart() {
                   highlightedValue,
                 )}
                 tick={({ x, y, payload }) => {
-                  //console.log("called for " + payload.value + ", priceUsd in 0:" + data[0].priceUsd)
                   let textColor = 'var(--color-graph-label-text)';
                   let backgroundColor = 'var(--color-graph-label-bg)';
-                  let zIndex = 0;
+                  let roundedBorderLeft = true;
 
                   const width = (maxLabel + '').length * charWidth;
-                  if (prevCloseRounded && payload.value === prevCloseRounded) {
+                  if (prevCloseRounded && payload.value === prevCloseRounded.toString()) {
                     textColor = 'var(--color-graph-label-bg)';
                     backgroundColor = 'var(--color-graph-label-bg-prevclose)';
-                    zIndex = 1;
-                  }
-
-                  if (currentRounded && payload.value === currentRounded) {
-                    textColor = 'var(--color-graph-label-bg)';
-                    backgroundColor = 'var(--color-graph-label-text)';
-                    zIndex = 1;
-                  }
-
-                  if (highlightedValue !== null && payload.value === highlightedValue) {
-                    textColor = 'var(--color-graph-label-bg)';
-                    backgroundColor = 'var(--color-graph-label-text)';
-                    zIndex = 2;
+                    roundedBorderLeft = false;
+                  } else {
+                    if (currentRounded !== null && payload.value === currentRounded.toString()) {
+                      textColor = 'var(--color-graph-label-bg)';
+                      backgroundColor = 'var(--color-graph-label-text)';
+                    }
+                    if (
+                      highlightedValue !== null &&
+                      payload.value === highlightedValue.toString()
+                    ) {
+                      textColor = 'var(--color-graph-label-bg)';
+                      backgroundColor = 'var(--color-graph-label-text)';
+                    }
                   }
 
                   return (
-                    <g z-index={zIndex}>
-                      <rect
-                        x={x}
-                        y={y - 12}
-                        width={paddingLabel + width + paddingLabel}
-                        height={16}
+                    <g key={`tick-${payload.value}-${x}-${y}-${textColor}-${backgroundColor}`}>
+                      <path
+                        d={createRoundedRectPath(
+                          x,
+                          y - 12,
+                          paddingLabel + width + paddingLabel,
+                          16,
+                          4,
+                          {
+                            topLeft: roundedBorderLeft,
+                            topRight: true,
+                            bottomRight: true,
+                            bottomLeft: roundedBorderLeft,
+                          },
+                        )}
                         fill={backgroundColor}
-                        rx={4}
-                        ry={4}
                       />
                       <text x={x + paddingLabel} y={y} fill={textColor} fontSize={10}>
                         {payload.value}
@@ -254,7 +285,7 @@ export default function AssetChart() {
                 type="linear"
                 name=""
                 dataKey="priceUsd"
-                stroke="#287878"
+                stroke="var(--color-graph-stroke)"
                 strokeWidth={2}
                 fill="url(#colorUv)"
                 fillOpacity={1}

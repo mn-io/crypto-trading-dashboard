@@ -45,9 +45,6 @@ export default function TransactionModal({
 
     const chartDatum = chartData[chartData.length - 1];
     const cost = chartDatum.priceUsd;
-
-    console.log(chartDatum);
-    console.log(cost);
     if (price === '' && amount !== '') {
       try {
         setCalculatedPrice(new Big(cost).mul(amount).toString());
@@ -133,24 +130,24 @@ export default function TransactionModal({
         <div className="flex items-center mb-2 input-root">
           <input
             type="text"
-            placeholder="Price (USD)"
+            placeholder="Price"
             value={price === '' && !priceCleared ? calculatedPrice : price}
             onChange={handlePriceChange}
             onBlur={() => (price === '' ? setPriceCleared(false) : null)}
             className="flex-1"
           />
-          <span className="">USD</span>
+          <span className="">{process.env.NEXT_PUBLIC_PRICE_CURRENCY_SLUG}</span>
         </div>
         <div className="flex items-center mb-2 input-root">
           <input
             type="text"
-            placeholder="Amount (BTC)"
+            placeholder="Amount"
             value={amount === '' && !amountCleared ? calculatedAmount : amount}
             onChange={handleAmountChange}
             onBlur={() => (amount === '' ? setAmountCleared(false) : null)}
             className="flex-1"
           />
-          <span className="">BTC</span>
+          <span className="">{process.env.NEXT_PUBLIC_ASSET}</span>
         </div>
 
         <div className="flex justify-between">

@@ -6,7 +6,8 @@
 
   --color-theme-dark: #143342;
   --color-theme-gray: #f3f3f3;
-  --color-graph-stroke: #69cdcc;
+  --color-graph-ref-line: #69cdcc;
+  --color-graph-stroke: #287878;
   --color-graph-fill: #40bebf;
   --color-graph-label: #40bebf;
   --color-graph-label-bg: #fff;
