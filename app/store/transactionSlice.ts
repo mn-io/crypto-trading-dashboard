@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-// eslint-disable-next-line import/no-named-as-default
-import Big from 'big.js';
+import { getBig } from '../bigJsStringCache';
 
 export type TransactionDatum = {
   time: number;
@@ -51,12 +50,12 @@ export const fetchTransactionData = createAsyncThunk('transaction/fetchData', as
 function addTransactionDataImpl(state: TransactionState, transaction: TransactionDatum) {
   state.data.unshift(transaction);
 
-  const price = new Big(transaction.price);
-  const amount = new Big(transaction.amountAsset);
-  let totalAsset = new Big(state.totalAsset);
-  let totalCost = new Big(state.totalCost);
-  let totalPnL = new Big(state.pnl);
-  let totalCash = new Big(state.totalCash);
+  const price = getBig(transaction.price);
+  const amount = getBig(transaction.amountAsset);
+  let totalAsset = getBig(state.totalAsset);
+  let totalCost = getBig(state.totalCost);
+  let totalPnL = getBig(state.pnl);
+  let totalCash = getBig(state.totalCash);
 
   if (transaction.type === 'Buy') {
     totalCost = totalCost.plus(price.times(amount));

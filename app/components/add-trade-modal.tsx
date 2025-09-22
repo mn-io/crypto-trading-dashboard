@@ -1,8 +1,7 @@
 'use client';
 
-// eslint-disable-next-line import/no-named-as-default
-import Big from 'big.js';
 import { useEffect, useState } from 'react';
+import { getBig } from '../bigJsStringCache';
 import { chartSelector } from '../store/chartSlice';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addTransactionData } from '../store/transactionSlice';
@@ -48,7 +47,7 @@ export default function TransactionModal({
     const cost = chartDatum.price;
     if (price === '' && amount !== '') {
       try {
-        setCalculatedPrice(new Big(cost).mul(amount).toString());
+        setCalculatedPrice(getBig(cost).mul(amount).toString());
       } catch (error) {
         console.error(error);
         setCalculatedPrice('');
@@ -57,7 +56,7 @@ export default function TransactionModal({
     }
     if (amount === '' && price !== '') {
       try {
-        setCalculatedAmount(new Big(price).div(cost).toString());
+        setCalculatedAmount(getBig(price).div(cost).toString());
       } catch (error) {
         console.error(error);
         setCalculatedAmount('');

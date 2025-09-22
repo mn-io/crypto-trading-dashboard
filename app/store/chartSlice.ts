@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-// eslint-disable-next-line import/no-named-as-default
-import Big from 'big.js';
+import { getBig } from '../bigJsStringCache';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
 const lastFetchMinAge = 5000;
@@ -91,7 +90,7 @@ export const chartSelector = (state: { chart: { data: ChartDatum[] } }) => {
     state.chart.data.length > 0 &&
     (() => {
       try {
-        state.chart.data.forEach((datum) => new Big(datum.price));
+        state.chart.data.forEach((datum) => getBig(datum.price));
         return true;
       } catch {
         console.error('Price value is invalid, not a number (big.js), in:', state.chart.data[0]);

@@ -5,6 +5,7 @@ import Big from 'big.js';
 import { useState } from 'react';
 import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';
 
+import { getBig } from '../bigJsStringCache';
 import { ChartDatum, chartSelector } from '../store/chartSlice';
 import { useAppSelector } from '../store/hooks';
 
@@ -13,15 +14,15 @@ const charWidth = 6;
 
 function getMinMax(data: ChartDatum[]): { min: Big; max: Big } {
   if (!data || data.length === 0) {
-    return { min: new Big(0), max: new Big(0) };
+    return { min: getBig(0), max: getBig(0) };
   }
 
-  let min: Big = new Big(Number.MAX_SAFE_INTEGER);
-  let max: Big = new Big(Number.MIN_SAFE_INTEGER);
+  let min = getBig(Number.MAX_SAFE_INTEGER);
+  let max = getBig(Number.MIN_SAFE_INTEGER);
 
   for (const d of data) {
     try {
-      const value = new Big(d.price);
+      const value = getBig(d.price);
 
       if (value.lt(min)) min = value;
       if (value.gt(max)) max = value;
@@ -34,13 +35,13 @@ function getMinMax(data: ChartDatum[]): { min: Big; max: Big } {
 }
 
 function roundToTwoDigits(num: Big, roundUp: boolean): Big {
-  if (num.eq(new Big(0))) {
-    return new Big(0);
+  if (num.eq(getBig(0))) {
+    return getBig(0);
   }
 
   // compute scaling factor like 10^(log10(num) - 1)
   const exponent = num.e; // e.g. for 1234 -> 3
-  const digits = new Big(10).pow(exponent - 1);
+  const digits = getBig(10).pow(exponent - 1);
   const bigNum = num.div(digits);
 
   const rounded = roundUp
@@ -88,7 +89,7 @@ function getTicks(
   const ticks: Big[] = [];
   for (let i = 0; i < steps; i++) {
     const ratio = i / (steps - 1);
-    const value = new Big(max).minus(min).times(ratio).plus(min);
+    const value = getBig(max).minus(min).times(ratio).plus(min);
     ticks.push(value);
   }
   if (prevClose) {
@@ -100,7 +101,7 @@ function getTicks(
   }
 
   if (highlightedValue) {
-    ticks.push(new Big(highlightedValue));
+    ticks.push(getBig(highlightedValue));
   }
 
   return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
@@ -124,14 +125,14 @@ export default function AssetChart() {
     );
   }
 
-  const prevCloseRounded = hasData ? new Big(chartData[0].price).round(0, Big.roundDown) : null;
+  const prevCloseRounded = hasData ? getBig(chartData[0].price).round(0, Big.roundDown) : null;
 
   const prevCloseRoundedTwoDigits = hasData
-    ? new Big(chartData[0].price).times(100).round(0, Big.roundDown).div(100)
+    ? getBig(chartData[0].price).times(100).round(0, Big.roundDown).div(100)
     : null;
 
   const currentRounded = hasData
-    ? new Big(chartData[chartData.length - 1].price).round(0, Big.roundDown)
+    ? getBig(chartData[chartData.length - 1].price).round(0, Big.roundDown)
     : null;
 
   const { min: minValue, max: maxValue } = getMinMax(chartData);
@@ -141,7 +142,7 @@ export default function AssetChart() {
     maxLabel: roundToTwoDigits(maxValue, true),
   };
 
-  const pnlBig = new Big(transactions.pnl).round(2, 0);
+  const pnlBig = getBig(transactions.pnl).round(2, 0);
   const isPositive = pnlBig.gte(0);
   const pnlFormatted = (isPositive ? '+' : '') + pnlBig.toFixed(2).toString();
 
@@ -169,7 +170,7 @@ export default function AssetChart() {
                 const hoveredDataPoint = chartData[hoveredIndex];
                 if (hoveredDataPoint?.price) {
                   try {
-                    const value = new Big(hoveredDataPoint.price);
+                    const value = getBig(hoveredDataPoint.price);
                     setHighlightedValue(value.round(0, Big.roundHalfUp).toString());
                   } catch {
                     setHighlightedValue(null);
