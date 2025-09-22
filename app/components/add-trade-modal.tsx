@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useAppDispatch } from '../store/hooks';
+import Big from 'big.js';
+import { useEffect, useState } from 'react';
+import { ChartDatum } from '../store/chartSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { addTransactionData } from '../store/transactionSlice';
 
 function validateInput(input: string) {
@@ -26,16 +28,68 @@ export default function TransactionModal({
   onClose: () => void;
 }) {
   const dispatch = useAppDispatch();
+  const chartData: ChartDatum[] = useAppSelector((state) => state.chart.data);
+
   const [price, setPrice] = useState('');
+  const [calculatedPrice, setCalculatedPrice] = useState('');
+  const [priceCleared, setPriceCleared] = useState(false);
   const [amount, setAmount] = useState('');
+  const [calculatedAmount, setCalculatedAmount] = useState('');
+  const [amountCleared, setAmountCleared] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (chartData.length == 0) {
+      return;
+    }
+
+    const chartDatum = chartData[chartData.length - 1];
+    const cost = chartDatum.priceUsd;
+
+    console.log(chartDatum);
+    console.log(cost);
+    if (price === '' && amount !== '') {
+      try {
+        setCalculatedPrice(new Big(cost).mul(amount).toString());
+      } catch (error) {
+        setCalculatedPrice('');
+        return;
+      }
+    }
+    if (amount === '' && price !== '') {
+      try {
+        setCalculatedAmount(new Big(price).div(cost).toString());
+      } catch (error) {
+        setCalculatedAmount('');
+      }
+    }
+  }, [price, amount]);
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setPrice(val);
+    if (val === '') {
+      setPriceCleared(true);
+    } else {
+      setPriceCleared(false);
+    }
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setAmount(val);
+    if (val === '') {
+      setAmountCleared(true);
+    } else {
+      setAmountCleared(false);
+    }
+  };
 
   const handleSubmit = (type: 'Buy' | 'Sell') => {
     const priceValidated = validateInput(price);
     const amountValidated = validateInput(amount);
 
     if (!priceValidated || !amountValidated) {
-      console.log('error');
       setError(
         'Please enter valid numbers in format: 123,456.0001 whereas , is delimiter for tausend and will be ignored.',
       );
@@ -80,8 +134,9 @@ export default function TransactionModal({
           <input
             type="text"
             placeholder="Price (USD)"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            value={price === '' && !priceCleared ? calculatedPrice : price}
+            onChange={handlePriceChange}
+            onBlur={() => (price === '' ? setPriceCleared(false) : null)}
             className="flex-1"
           />
           <span className="">USD</span>
@@ -90,8 +145,9 @@ export default function TransactionModal({
           <input
             type="text"
             placeholder="Amount (BTC)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={amount === '' && !amountCleared ? calculatedAmount : amount}
+            onChange={handleAmountChange}
+            onBlur={() => (amount === '' ? setAmountCleared(false) : null)}
             className="flex-1"
           />
           <span className="">BTC</span>
