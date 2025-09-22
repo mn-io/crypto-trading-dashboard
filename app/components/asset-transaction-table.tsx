@@ -11,6 +11,13 @@ import {
 
 const TransactionModal = dynamic(() => import('./add-trade-modal'), {
   ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="flex items-center justify-center p-4">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
+      </div>
+    </div>
+  ),
 });
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {

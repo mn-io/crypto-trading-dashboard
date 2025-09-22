@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint 'app/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write 'app/**/*.{js,ts,tsx,json,css,md}'",
-    "test": "jest"
+    "test": "jest",
+    "docker": "docker-compose down && docker-compose build && docker-compose up -d"
   },
   "jest": {
     "testEnvironment": "jsdom",
