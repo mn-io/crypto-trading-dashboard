@@ -33,10 +33,10 @@ export default function TransactionModal({
 
   const [price, setPrice] = useState('');
   const [calculatedPrice, setCalculatedPrice] = useState('');
-  const [priceCleared, setPriceCleared] = useState(false);
+  const [priceClearedByUser, setPriceClearedByUser] = useState(false);
   const [amount, setAmount] = useState('');
   const [calculatedAmount, setCalculatedAmount] = useState('');
-  const [amountCleared, setAmountCleared] = useState(false);
+  const [amountClearedByUser, setAmountClearedByUser] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -69,9 +69,9 @@ export default function TransactionModal({
     const val = e.target.value;
     setPrice(val);
     if (val === '') {
-      setPriceCleared(true);
+      setPriceClearedByUser(true);
     } else {
-      setPriceCleared(false);
+      setPriceClearedByUser(false);
     }
   };
 
@@ -79,9 +79,9 @@ export default function TransactionModal({
     const val = e.target.value;
     setAmount(val);
     if (val === '') {
-      setAmountCleared(true);
+      setAmountClearedByUser(true);
     } else {
-      setAmountCleared(false);
+      setAmountClearedByUser(false);
     }
   };
 
@@ -112,8 +112,8 @@ export default function TransactionModal({
     setAmount('');
     setError('');
     onClose();
-    setAmountCleared(false);
-    setPriceCleared(false);
+    setAmountClearedByUser(false);
+    setPriceClearedByUser(false);
     setCalculatedAmount('');
     setCalculatedPrice('');
   };
@@ -141,9 +141,9 @@ export default function TransactionModal({
           <input
             type="text"
             placeholder="Price"
-            value={price === '' && !priceCleared ? calculatedPrice : price}
+            value={price === '' && !priceClearedByUser ? calculatedPrice : price}
             onChange={handlePriceChange}
-            onBlur={() => (price === '' ? setPriceCleared(false) : null)}
+            onBlur={() => (price === '' ? setPriceClearedByUser(false) : null)}
             className="flex-1"
           />
           <span className="">{process.env.NEXT_PUBLIC_PRICE_CURRENCY_SLUG}</span>
@@ -152,9 +152,9 @@ export default function TransactionModal({
           <input
             type="text"
             placeholder="Amount"
-            value={amount === '' && !amountCleared ? calculatedAmount : amount}
+            value={amount === '' && !amountClearedByUser ? calculatedAmount : amount}
             onChange={handleAmountChange}
-            onBlur={() => (amount === '' ? setAmountCleared(false) : null)}
+            onBlur={() => (amount === '' ? setAmountClearedByUser(false) : null)}
             className="flex-1"
           />
           <span className="">{process.env.NEXT_PUBLIC_ASSET}</span>
