@@ -6,3 +6,5 @@ see `package.json`:
 - run locally in dev mode`npm run dev`
 - re-creates docker volume and start docker-compose: `npm run docker`
 - run tests: `npm run test`
+
+config see .env file.

@@ -1,4 +1,5 @@
-// pages/api/chart.ts
+import { promises as fs } from 'fs';
+import path from 'path';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
@@ -22,25 +23,55 @@ function mapCoinCapDatum(datum: CoinCapDatum, earliestDate: number): ChartDatum 
   }
 
   if (datum.time < earliestDate) {
-    console.warn(`Datum is too early:`, datum);
+    //console.warn(`Datum is too early:`, datum);
     return null;
   }
 
   return { time: datum.time, price };
 }
 
+const CACHE_FILE = path.join(process.cwd(), 'chartCache.json');
 let dataCache: ChartDatum[] = [];
+
+async function writeChartCache() {
+  try {
+    await fs.writeFile(CACHE_FILE, JSON.stringify(dataCache, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Error writing chart cache:', err);
+  }
+}
+
+async function readChartCache(): Promise<ChartDatum[]> {
+  try {
+    const fileContent = await fs.readFile(CACHE_FILE, 'utf-8');
+    const data: ChartDatum[] = JSON.parse(fileContent);
+    dataCache = data;
+    return data;
+  } catch (err) {
+    console.error(
+      'File not found/valid, but needed (otherwise set API_KEY in .env',
+      CACHE_FILE,
+      err,
+    );
+    return [];
+  }
+}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<{ data: ChartDatum[] }>,
 ) {
   try {
+    if (!process.env.API_KEY_COINCAP && dataCache.length == 0) {
+      await readChartCache();
+    }
+
     if (dataCache.length > 0) {
       console.log('serving from data cache');
       res.status(200).json({ data: dataCache });
       return;
     }
+
     console.log(`fetching new chart data from ${process.env.API_URI_COINCAP}`);
     const response = await fetch(process.env.API_URI_COINCAP || '', {
       headers: {
@@ -62,6 +93,7 @@ export default async function handler(
       .filter((d: CoinCapDatum): d is ChartDatum => d !== null);
 
     dataCache = data;
+    writeChartCache();
 
     res.status(200).json({ data });
   } catch (err) {
