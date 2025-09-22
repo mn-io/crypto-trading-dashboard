@@ -3,8 +3,9 @@
 // eslint-disable-next-line import/no-named-as-default
 import Big from 'big.js';
 import { useState } from 'react';
-import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart } from 'recharts';
+import { Area, ReferenceLine, YAxis, ResponsiveContainer, AreaChart, Tooltip } from 'recharts';
 
+import { TooltipPayload } from 'recharts/types/state/tooltipSlice';
 import { getBig } from '../bigJsStringCache';
 import { ChartDatum, chartSelector } from '../store/chartSlice';
 import { useAppSelector } from '../store/hooks';
@@ -106,6 +107,21 @@ function getTicks(
 
   return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
 }
+
+const ChartDatumTooltip = ({ active, payload }: { active: boolean; payload: TooltipPayload }) => {
+  if (active && payload && payload.length) {
+    console.log(payload);
+    return (
+      <div className="rounded-lg bg-white p-2 shadow-md">
+        <p className="text-sm">Time: {new Date(payload[0].payload.time).toLocaleString('de-DE')}</p>
+        <p className="text-sm">
+          Price: {payload[0].value} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function AssetChart() {
   const transactions = useAppSelector((state) => state.transactions);
@@ -228,6 +244,8 @@ export default function AssetChart() {
                   }}
                 />
               )}
+
+              <Tooltip content={<ChartDatumTooltip />} />
 
               <YAxis
                 orientation="right"
