@@ -57,31 +57,37 @@ export default function AssetTransactionTable() {
       <div className="max-h-64 overflow-y-auto table-bg-color rounded-xl p-4">
         <table className="w-full text-left border-collapse">
           <tbody>
-            {data.map((datum) => {
-              const dateObj = new Date(datum.time);
-              const date = dateFormatter.format(dateObj);
-              const time = timeFormatter.format(dateObj);
+            {data.length === 0 ? (
+              <tr>
+                <td className="text-center">No trade data available</td>
+              </tr>
+            ) : (
+              data.map((datum) => {
+                const dateObj = new Date(datum.time);
+                const date = dateFormatter.format(dateObj);
+                const time = timeFormatter.format(dateObj);
 
-              const netHoldingsing = getNetHoldingSign(datum.type);
-              const netHoldingsingStr = netHoldingsing == 1 ? '+' : '-';
-              const netHoldingsingInvertedStr = netHoldingsing == -1 ? '+' : '-';
+                const netHoldingsing = getNetHoldingSign(datum.type);
+                const netHoldingsingStr = netHoldingsing == 1 ? '+' : '-';
+                const netHoldingsingInvertedStr = netHoldingsing == -1 ? '+' : '-';
 
-              return (
-                <tr key={datum.time + datum.type}>
-                  <td className="text-left pb-2">{datum.type}</td>
-                  <td className="text-center font-semibold">
-                    {`${
-                      netHoldingsingInvertedStr + datum.amountAsset
-                    } ${process.env.NEXT_PUBLIC_ASSET} / 
+                return (
+                  <tr key={datum.time + datum.type}>
+                    <td className="text-left pb-2">{datum.type}</td>
+                    <td className="text-center font-semibold">
+                      {`${
+                        netHoldingsingInvertedStr + datum.amountAsset
+                      } ${process.env.NEXT_PUBLIC_ASSET} / 
                     ${netHoldingsingStr}${datum.price} ${process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}`}
-                  </td>
-                  <td className="text-right">
-                    {date != today ? date + ' ' : ''}
-                    {time}
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td className="text-right">
+                      {date != today ? date + ' ' : ''}
+                      {time}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

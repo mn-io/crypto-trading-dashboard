@@ -89,7 +89,7 @@ function getTicks(
   const ticks: Big[] = [];
   for (let i = 0; i < steps; i++) {
     const ratio = i / (steps - 1);
-    const value = getBig(max).minus(min).times(ratio).plus(min);
+    const value = max.minus(min).times(ratio).plus(min);
     ticks.push(value);
   }
   if (prevClose) {
