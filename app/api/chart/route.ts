@@ -1,6 +1,5 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { NextRequest } from 'next/server';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
 const propertyName = process.env.API_PRICE_PROPERTY_NAME || '';
@@ -65,7 +64,7 @@ export async function readChartCacheIfEmpty(): Promise<ChartDatum[]> {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     if (!process.env.API_KEY_COINCAP) {
       await readChartCacheIfEmpty();
