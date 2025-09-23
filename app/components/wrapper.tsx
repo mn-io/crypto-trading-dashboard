@@ -7,7 +7,7 @@ import AssetAccountSummary from './asset-account-summary';
 import AssetChart from './asset-chart';
 import AssetTransactionTable from './asset-transaction-table';
 
-const fetchNewchartDataInMillis = 60000;
+const fetchNewchartDataInMillis = 60_000;
 
 export default function Wrapper() {
   const dispatch = useAppDispatch();

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev --turbopack\" \"sleep 3 && curl -s http://localhost:3000/ > /dev/null\"",
+    "dev": "concurrently \"next dev --turbopack --port 3000\" \"sleep 3 && curl -s http://localhost:3000/ > /dev/null\"",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint 'app/**/*.{js,ts,tsx}' --fix",
@@ -13,7 +13,8 @@
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:logs": "docker-compose logs -f",
-    "docker:restart": "npm run docker:down && npm run docker:build && npm run docker:up && npm run docker:logs"
+    "docker:restart": "npm run docker:down && npm run docker:build && npm run docker:up && npm run docker:logs",
+    "get-host": "dotenv -e .env print NEXT_PUBLIC_HOST"
   },
   "jest": {
     "preset": "ts-jest",
@@ -51,6 +52,7 @@
     "autoprefixer": "^10.4.21",
     "babel-jest": "^30.1.2",
     "concurrently": "^9.2.1",
+    "dotenv": "^17.2.2",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
