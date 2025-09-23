@@ -49,33 +49,6 @@ function roundToTwoDigits(num: Big, roundUp: boolean): Big {
   return rounded.times(digits);
 }
 
-function createRoundedRectPath(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-  corners = { topLeft: true, topRight: true, bottomRight: true, bottomLeft: true },
-): string {
-  const tl = corners.topLeft ? radius : 0;
-  const tr = corners.topRight ? radius : 0;
-  const br = corners.bottomRight ? radius : 0;
-  const bl = corners.bottomLeft ? radius : 0;
-
-  return `
-    M ${x + tl} ${y}
-    H ${x + width - tr}
-    ${tr ? `A ${tr} ${tr} 0 0 1 ${x + width} ${y + tr}` : ''}
-    V ${y + height - br}
-    ${br ? `A ${br} ${br} 0 0 1 ${x + width - br} ${y + height}` : ''}
-    H ${x + bl}
-    ${bl ? `A ${bl} ${bl} 0 0 1 ${x} ${y + height - bl}` : ''}
-    V ${y + tl}
-    ${tl ? `A ${tl} ${tl} 0 0 1 ${x + tl} ${y}` : ''}
-    Z
-  `;
-}
-
 function getTicks(
   min: Big,
   max: Big,
@@ -205,46 +178,6 @@ export default function AssetChart() {
                   <stop offset="95%" stopColor="#b2e4e5" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              {prevCloseRounded && (
-                <ReferenceLine
-                  y={prevCloseRounded?.toString()}
-                  stroke="var(--color-graph-ref-line)"
-                  strokeWidth={1}
-                  strokeDasharray="2 3"
-                  label={({ viewBox }) => {
-                    const { x, y, width } = viewBox;
-                    return (
-                      <g>
-                        <path
-                          d={createRoundedRectPath(
-                            width - charWidth * 10,
-                            y - 12,
-                            charWidth * 15,
-                            16,
-                            4,
-                            {
-                              topLeft: true,
-                              topRight: false,
-                              bottomRight: false,
-                              bottomLeft: true,
-                            },
-                          )}
-                          fill="var(--color-graph-fill)"
-                        />
-                        <text
-                          x={x + width - paddingLabel}
-                          y={y}
-                          fontSize={10}
-                          textAnchor="end"
-                          fill="var(--color-graph-label-bg)"
-                        >
-                          Prev close
-                        </text>
-                      </g>
-                    );
-                  }}
-                />
-              )}
 
               <Tooltip content={<ChartDatumTooltip />} />
 
@@ -263,13 +196,14 @@ export default function AssetChart() {
                 tick={({ x, y, payload }) => {
                   let textColor = 'var(--color-graph-label-text)';
                   let backgroundColor = 'var(--color-graph-label-bg)';
-                  let roundedBorderLeft = true;
 
                   const width = (maxLabel + '').length * charWidth;
+                  const moreLeft = 5;
+                  let fixLeft = 0;
                   if (prevCloseRounded && payload.value === prevCloseRounded.toString()) {
                     textColor = 'var(--color-graph-label-bg)';
                     backgroundColor = 'var(--color-graph-label-bg-prevclose)';
-                    roundedBorderLeft = false;
+                    fixLeft = -5;
                   } else {
                     if (currentRounded !== null && payload.value === currentRounded.toString()) {
                       textColor = 'var(--color-graph-label-bg)';
@@ -286,29 +220,57 @@ export default function AssetChart() {
 
                   return (
                     <g key={`tick-${payload.value}-${x}-${y}-${textColor}-${backgroundColor}`}>
-                      <path
-                        d={createRoundedRectPath(
-                          x,
-                          y - 12,
-                          paddingLabel + width + paddingLabel,
-                          16,
-                          4,
-                          {
-                            topLeft: roundedBorderLeft,
-                            topRight: true,
-                            bottomRight: true,
-                            bottomLeft: roundedBorderLeft,
-                          },
-                        )}
+                      <rect
+                        x={x + moreLeft + fixLeft}
+                        y={y - 12}
+                        width={paddingLabel + width + paddingLabel - fixLeft}
+                        height={16}
                         fill={backgroundColor}
+                        rx={4}
+                        ry={4}
                       />
-                      <text x={x + paddingLabel} y={y} fill={textColor} fontSize={10}>
+                      <text x={x + paddingLabel + moreLeft} y={y} fill={textColor} fontSize={10}>
                         {payload.value}
                       </text>
                     </g>
                   );
                 }}
               />
+
+              {prevCloseRounded && (
+                <ReferenceLine
+                  y={prevCloseRounded?.toString()}
+                  stroke="var(--color-graph-ref-line)"
+                  strokeWidth={1}
+                  strokeDasharray="2 3"
+                  label={({ viewBox }) => {
+                    const { x, y, width } = viewBox;
+                    return (
+                      <g>
+                        <rect
+                          x={width - charWidth * 10}
+                          y={y - 12}
+                          width={charWidth * 12.22}
+                          height={16}
+                          fill="var(--color-graph-fill)"
+                          rx={4}
+                          ry={4}
+                        />
+                        <text
+                          x={x + width - paddingLabel}
+                          y={y}
+                          fontSize={10}
+                          textAnchor="end"
+                          fill="var(--color-graph-label-bg)"
+                        >
+                          Prev close
+                        </text>
+                      </g>
+                    );
+                  }}
+                />
+              )}
+
               <Area
                 type="linear"
                 name=""

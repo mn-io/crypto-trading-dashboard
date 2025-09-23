@@ -56,7 +56,7 @@ export async function readChartCacheIfEmpty(): Promise<ChartDatum[]> {
     return data;
   } catch (err) {
     console.error(
-      'File not found/valid, but needed (otherwise set API_KEY in .env',
+      'File not found/valid, but needed (otherwise set API_KEY in .env)',
       cacheFilePath,
       err,
     );
@@ -73,6 +73,11 @@ export async function GET() {
     if (dataCache.length > 0) {
       console.log(`serving from data cache, length: ${dataCache.length}`);
       return new Response(JSON.stringify(dataCache), { headers });
+    }
+
+    if (!process.env.API_KEY_COINCAP) {
+      console.error('API key is missing and data cache is empty (read from ./chartCache.json)');
+      return new Response(JSON.stringify([]), { status: 500 });
     }
 
     console.log(`fetching new chart data from ${process.env.API_URI_COINCAP}`);
