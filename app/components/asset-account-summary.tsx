@@ -12,7 +12,7 @@ export default function AssetAccountSummary() {
         <img src="/icon.png" />
       </div>
       <div className="text-right text-sm">
-        <p>Aavilable</p>
+        <p>Available</p>
         <p>
           {totalAsset} <span className="font-bold">{process.env.NEXT_PUBLIC_ASSET}</span>
         </p>

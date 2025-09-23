@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
-import Head from 'next/head';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,9 +24,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <Head>
-        <link rel="icon" type="image/png" href="/favicon.png" />
-      </Head>
       <body className={`${geistSans.variable} antialiased`}>{children}</body>
     </html>
   );

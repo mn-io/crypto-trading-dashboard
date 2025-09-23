@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint 'app/**/*.{js,ts,tsx}' --fix",
     "format": "prettier --write 'app/**/*.{js,ts,tsx,json,css,md}'",
+    "test": "npm run test:unit && npm run test:integration",
     "test:integration": "jest --config jest.integration.config.js",
     "test:unit": "cypress run --component --headless",
     "test:unit-interactive": "cypress open --component",

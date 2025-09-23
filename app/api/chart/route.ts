@@ -1,9 +1,11 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest } from 'next/server';
 
 const hours24InMillis = 24 * 60 * 60 * 1000;
 const propertyName = process.env.API_PRICE_PROPERTY_NAME || '';
+
+const headers = { 'Content-Type': 'application/json' };
 
 export type ChartDatum = { time: number; price: string };
 
@@ -63,10 +65,7 @@ export async function readChartCacheIfEmpty(): Promise<ChartDatum[]> {
   }
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<{ data: ChartDatum[] }>,
-) {
+export async function GET(req: NextRequest) {
   try {
     if (!process.env.API_KEY_COINCAP) {
       await readChartCacheIfEmpty();
@@ -74,8 +73,7 @@ export default async function handler(
 
     if (dataCache.length > 0) {
       console.log(`serving from data cache, length: ${dataCache.length}`);
-      res.status(200).json({ data: dataCache });
-      return;
+      return new Response(JSON.stringify(dataCache), { headers });
     }
 
     console.log(`fetching new chart data from ${process.env.API_URI_COINCAP}`);
@@ -88,7 +86,7 @@ export default async function handler(
 
     if (!response.ok) {
       console.error('CoinCap API error:', response.status);
-      return res.status(500).json({ data: [] });
+      return new Response(JSON.stringify([]), { status: 500 });
     }
 
     const rawData = await response.json();
@@ -101,9 +99,9 @@ export default async function handler(
     dataCache = data;
     writeChartCache();
 
-    res.status(200).json({ data });
+    return new Response(JSON.stringify(dataCache), { headers });
   } catch (err) {
     console.error('Error fetching chart data:', err);
-    res.status(500).json({ data: [] });
+    return new Response(JSON.stringify([]), { status: 500 });
   }
 }

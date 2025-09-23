@@ -34,7 +34,8 @@ export const fetchChartData = createAsyncThunk('chart/fetchData', async () => {
   }
   lastFetch = now;
 
-  dataCache = (await response.json()).data as ChartDatum[];
+  const data = (await response.json()) as ChartDatum[];
+  dataCache = !data ? [] : data;
   return dataCache;
 });
 

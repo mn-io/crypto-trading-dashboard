@@ -1,4 +1,4 @@
-import { readChartCacheIfEmpty } from '../../../pages/api/chart';
+import { readChartCacheIfEmpty } from '../../../app/api/chart/route';
 import { startTestServer, stopTestServer, TestServer } from '../../baseTest';
 
 jest.mock('fs/promises');
@@ -27,7 +27,7 @@ describe('API /api/chart', () => {
     const res = await fetch(localApi);
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.data.length).toBe(118);
-    expect(json.data).toEqual(dataCache);
+    expect(json.length).toBe(118);
+    expect(json).toEqual(dataCache);
   });
 });
