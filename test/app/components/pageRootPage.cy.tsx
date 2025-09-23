@@ -1,5 +1,5 @@
 import React from 'react';
-import RootPage from './page';
+import RootPage from '../../../app/page';
 
 describe('<RootPage />', () => {
   it('renders', () => {

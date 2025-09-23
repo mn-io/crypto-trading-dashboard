@@ -1,0 +1,12 @@
+test/*
+**/*.spec.ts
+**/*.integrationspec.ts
+**/*.cy.ts
+
+**/*.spec.tsx
+**/*.integrationspec.tsx
+**/*.cy.tsx
+
+cypress/
+cypress*
+jest*

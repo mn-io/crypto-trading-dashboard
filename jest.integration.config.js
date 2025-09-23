@@ -4,3 +4,6 @@ export const testMatch = ['**/*.integrationspec.ts', '**/*.integrationspec.tsx']
 export const setupFilesAfterEnv = [
   "./jest.setup.ts"
 ];
+export const moduleNameMapper = {
+  '^@/(.*)$': '<rootDir>/$1',
+};

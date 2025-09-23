@@ -7,6 +7,12 @@ export default defineConfig({
       bundler: 'webpack',
     },
     specPattern: '**/*.cy.{ts,tsx,js,jsx}',
+    fixturesFolder: 'test/cypress/fixtures',
+    screenshotsFolder: 'test/cypress/screenshots',
+    videosFolder: 'test/cypress/videos',
+    downloadsFolder: 'test/cypress/downloads',
+    supportFile: 'test/cypress/support/component.ts',
+    indexHtmlFile: 'test/cypress/support/component-index.html',
   },
 
   // e2e not in use for now.

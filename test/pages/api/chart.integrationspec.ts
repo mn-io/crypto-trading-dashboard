@@ -1,5 +1,5 @@
-import { startTestServer, stopTestServer, TestServer } from '../../test/baseTest';
-import { readChartCacheIfEmpty } from './chart';
+import { readChartCacheIfEmpty } from '../../../pages/api/chart';
+import { startTestServer, stopTestServer, TestServer } from '../../baseTest';
 
 jest.mock('fs/promises');
 
@@ -20,7 +20,7 @@ describe('API /api/chart', () => {
 
   it('returns cached data if available', async () => {
     const dataCache = await readChartCacheIfEmpty();
-    expect(dataCache.length).toEqual(118);
+    expect(dataCache.length).toBe(118);
 
     const localApi = `${process.env.NEXT_PUBLIC_HOST}/api/chart`;
 
