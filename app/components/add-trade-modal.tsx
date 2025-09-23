@@ -74,6 +74,12 @@ export default function TransactionModal({
     setAmountClearedByUser(val === '');
   };
 
+  const onBackgroundClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target == event.currentTarget) {
+      onClose();
+    }
+  };
+
   const handleSubmit = (type: 'Buy' | 'Sell') => {
     const actualPrice = price === '' ? calculatedPrice : price;
     const actualAmount = amount === '' ? calculatedAmount : amount;
@@ -110,8 +116,11 @@ export default function TransactionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="relative bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-80">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+      onClick={onBackgroundClick}
+    >
+      <div className="relative bg-white p-6 rounded-lg shadow-lg w-80">
         <div className="flex justify-end mb-4">
           <button onClick={onClose} className="ounded-full cursor-pointer" aria-label="Close">
             <svg
@@ -164,7 +173,7 @@ export default function TransactionModal({
           </button>
         </div>
 
-        {error && <p className="text-sm mt-2">{error}</p>}
+        <p className="text-sm mt-2 h-13">{error}</p>
       </div>
     </div>
   );
