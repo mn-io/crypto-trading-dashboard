@@ -48,8 +48,7 @@ export default function TransactionModal({
     if (price === '' && amount !== '') {
       try {
         setCalculatedPrice(getBig(cost).mul(amount).toString());
-      } catch (error) {
-        console.error(error);
+      } catch {
         setCalculatedPrice('');
         return;
       }
@@ -57,8 +56,7 @@ export default function TransactionModal({
     if (amount === '' && price !== '') {
       try {
         setCalculatedAmount(getBig(price).div(cost).toString());
-      } catch (error) {
-        console.error(error);
+      } catch {
         setCalculatedAmount('');
       }
     }
@@ -67,21 +65,13 @@ export default function TransactionModal({
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setPrice(val);
-    if (val === '') {
-      setPriceClearedByUser(true);
-    } else {
-      setPriceClearedByUser(false);
-    }
+    setPriceClearedByUser(val === '');
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setAmount(val);
-    if (val === '') {
-      setAmountClearedByUser(true);
-    } else {
-      setAmountClearedByUser(false);
-    }
+    setAmountClearedByUser(val === '');
   };
 
   const handleSubmit = (type: 'Buy' | 'Sell') => {

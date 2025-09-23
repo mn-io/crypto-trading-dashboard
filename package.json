@@ -13,8 +13,7 @@
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
     "docker:logs": "docker-compose logs -f",
-    "docker:restart": "npm run docker:down && npm run docker:build && npm run docker:up && npm run docker:logs",
-    "get-host": "dotenv -e .env print NEXT_PUBLIC_HOST"
+    "docker:restart": "npm run docker:down && npm run docker:build && npm run docker:up && npm run docker:logs"
   },
   "jest": {
     "preset": "ts-jest",
