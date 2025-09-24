@@ -1,7 +1,8 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+// next.config.js
+module.exports = {
+  webpackDevMiddleware: config => {
+    // Allow all hosts for Cypress component testing
+    config.allowedHosts = 'all';
+    return config;
+  },
 };
-
-// due to docker, or in detail npm start
-// eslint-disable-next-line no-undef
-module.exports = nextConfig;
