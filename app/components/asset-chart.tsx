@@ -11,19 +11,21 @@ import { useAppSelector } from '../store/hooks';
 
 const paddingLabel = 4;
 const charWidth = 6;
+const moreLeft = 5;
+const minInt = getBig(Number.MAX_SAFE_INTEGER);
+const maxInt = getBig(Number.MIN_SAFE_INTEGER);
 
 function getMinMax(data: ChartDatum[]): { min: Big; max: Big } {
-  if (!data || data.length === 0) {
+  if (data.length === 0) {
     return { min: getBig(0), max: getBig(0) };
   }
 
-  let min = getBig(Number.MAX_SAFE_INTEGER);
-  let max = getBig(Number.MIN_SAFE_INTEGER);
+  let min = minInt;
+  let max = maxInt;
 
   for (const d of data) {
     try {
       const value = getBig(d.price);
-
       if (value.lt(min)) min = value;
       if (value.gt(max)) max = value;
     } catch {
@@ -49,12 +51,21 @@ function roundToTwoDigits(num: Big, roundUp: boolean): Big {
   return rounded.times(digits);
 }
 
+const linearGradientDef = (
+  <defs>
+    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="5%" stopColor="#e5f7f6" stopOpacity={0.8} />
+      <stop offset="95%" stopColor="#b2e4e5" stopOpacity={0} />
+    </linearGradient>
+  </defs>
+);
+
 function getTicks(
   min: Big,
   max: Big,
   prevClose: Big | null,
   current: Big | null,
-  highlightedValue: string | null,
+  highlightedValue: Big | null,
   steps = 6,
 ): string[] {
   const ticks: Big[] = [];
@@ -72,36 +83,30 @@ function getTicks(
   }
 
   if (highlightedValue) {
-    ticks.push(getBig(highlightedValue));
+    ticks.push(highlightedValue);
   }
 
   return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
 }
 
 const createTicks =
-  (
-    maxLabel: Big,
-    prevCloseRounded: Big | null,
-    currentRounded: Big | null,
-    highlightedValue: string | null,
-  ) =>
+  (maxLabel: Big, prevCloseRounded: Big, currentRounded: Big, highlightedValue: Big | null) =>
   ({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => {
     let textColor = 'var(--color-graph-label-text)';
     let backgroundColor = 'var(--color-graph-label-bg)';
 
     const width = maxLabel.toString().length * charWidth;
-    const moreLeft = 5;
     let fixLeft = 0;
-    if (prevCloseRounded && payload.value === prevCloseRounded.toString()) {
+    if (payload.value === prevCloseRounded.toString()) {
       textColor = 'var(--color-graph-label-bg)';
       backgroundColor = 'var(--color-graph-label-bg-prevclose)';
       fixLeft = -5;
     } else {
-      if (currentRounded !== null && payload.value === currentRounded.toString()) {
+      if (payload.value === currentRounded.toString()) {
         textColor = 'var(--color-graph-label-bg)';
         backgroundColor = 'var(--color-graph-label-text)';
       }
-      if (highlightedValue !== null && payload.value === highlightedValue.toString()) {
+      if (highlightedValue && payload.value === highlightedValue.toString()) {
         textColor = 'var(--color-graph-label-bg)';
         backgroundColor = 'var(--color-graph-label-text)';
       }
@@ -148,7 +153,7 @@ const ChartDatumTooltip = ({ active, payload }: ChartTooltipProps) => {
 export default function AssetChart() {
   const transactions = useAppSelector((state) => state.transactions);
   const chartData = useAppSelector(chartSelector);
-  const [highlightedValue, setHighlightedValue] = useState<string | null>(null);
+  const [highlightedValue, setHighlightedValue] = useState<Big | null>(null);
 
   const hasData = chartData.length > 0;
 
@@ -165,13 +170,12 @@ export default function AssetChart() {
 
   const prevCloseRounded = getBig(chartData[0].price).round(0, Big.roundDown);
 
-  const prevCloseRoundedTwoDigits = hasData
-    ? getBig(chartData[0].price).times(100).round(0, Big.roundDown).div(100)
-    : null;
+  const prevCloseRoundedTwoDigits = getBig(chartData[0].price)
+    .times(100)
+    .round(0, Big.roundDown)
+    .div(100);
 
-  const currentRounded = hasData
-    ? getBig(chartData[chartData.length - 1].price).round(0, Big.roundDown)
-    : null;
+  const currentRounded = getBig(chartData[chartData.length - 1].price).round(0, Big.roundDown);
 
   const { min: minValue, max: maxValue } = getMinMax(chartData);
 
@@ -189,7 +193,7 @@ export default function AssetChart() {
       <div className="h-64 flex flex-col items-center justify-center space-y-2">
         <h2 className="text-xl font-semibold">{process.env.NEXT_PUBLIC_ASSET}</h2>
         <h2 className="text-xl font-semibold">
-          {prevCloseRoundedTwoDigits?.toString()} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
+          {prevCloseRoundedTwoDigits.toString()} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
         </h2>
         <div className={isPositive ? 'text-green-500' : 'text-red-500'}>
           PnL: {pnlFormatted} {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
@@ -209,7 +213,7 @@ export default function AssetChart() {
                 if (hoveredDataPoint?.price) {
                   try {
                     const value = getBig(hoveredDataPoint.price);
-                    setHighlightedValue(value.round(0, Big.roundHalfUp).toString());
+                    setHighlightedValue(value.round(0, Big.roundHalfUp));
                   } catch {
                     setHighlightedValue(null);
                   }
@@ -219,15 +223,7 @@ export default function AssetChart() {
               }}
               onMouseLeave={() => setHighlightedValue(null)}
             >
-              <defs>
-                <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#e5f7f6" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#b2e4e5" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-
               <Tooltip content={<ChartDatumTooltip />} />
-
               <YAxis
                 orientation="right"
                 tickLine={false}
@@ -242,41 +238,46 @@ export default function AssetChart() {
                 )}
                 tick={createTicks(maxLabel, prevCloseRounded, currentRounded, highlightedValue)}
               />
-
-              {prevCloseRounded && (
+              <ReferenceLine
+                y={prevCloseRounded.toString()}
+                stroke="var(--color-graph-ref-line)"
+                strokeWidth={1}
+                strokeDasharray="2 3"
+                label={({ viewBox }) => {
+                  const { x, y, width } = viewBox;
+                  return (
+                    <g>
+                      <rect
+                        x={width - charWidth * 10}
+                        y={y - 12}
+                        width={charWidth * 12.22}
+                        height={16}
+                        fill="var(--color-graph-fill)"
+                        rx={4}
+                        ry={4}
+                      />
+                      <text
+                        x={x + width - paddingLabel}
+                        y={y}
+                        fontSize={10}
+                        textAnchor="end"
+                        fill="var(--color-graph-label-bg)"
+                      >
+                        Prev close
+                      </text>
+                    </g>
+                  );
+                }}
+              />
+              {highlightedValue && (
                 <ReferenceLine
-                  y={prevCloseRounded?.toString()}
+                  y={highlightedValue.toString()}
                   stroke="var(--color-graph-ref-line)"
-                  strokeWidth={1}
+                  strokeWidth={2}
                   strokeDasharray="2 3"
-                  label={({ viewBox }) => {
-                    const { x, y, width } = viewBox;
-                    return (
-                      <g>
-                        <rect
-                          x={width - charWidth * 10}
-                          y={y - 12}
-                          width={charWidth * 12.22}
-                          height={16}
-                          fill="var(--color-graph-fill)"
-                          rx={4}
-                          ry={4}
-                        />
-                        <text
-                          x={x + width - paddingLabel}
-                          y={y}
-                          fontSize={10}
-                          textAnchor="end"
-                          fill="var(--color-graph-label-bg)"
-                        >
-                          Prev close
-                        </text>
-                      </g>
-                    );
-                  }}
                 />
               )}
-
+              ){linearGradientDef}
               <Area
                 type="linear"
                 name=""

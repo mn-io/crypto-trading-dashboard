@@ -26,7 +26,7 @@ export default function Wrapper() {
   }, [dispatch]);
 
   return (
-    <main className="min-h-screen min-w-[420px] p-6 sm:p-12">
+    <main className="min-h-screen min-w-[420px] p-3 lg:p-6">
       <div className="grid grid-cols-2 gap-6 items-start">
         <div className="font-medium w-[62px] lg:order-1">
           <img src="/icon.png" width="62" />
