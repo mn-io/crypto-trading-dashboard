@@ -43,8 +43,14 @@ const dataCache: TransactionDatum[] = [
   { time: Date.now() - oneHour * 9, price: '50', amountAsset: '0.00221', type: 'Buy' },
 ];
 
+let dataCacheHasRunOnce = true;
+
 export const fetchTransactionData = createAsyncThunk('transaction/fetchData', async () => {
-  return dataCache;
+  if (dataCacheHasRunOnce) {
+    dataCacheHasRunOnce = false;
+    return dataCache;
+  }
+  return [];
 });
 
 function addTransactionDataImpl(state: TransactionState, transaction: TransactionDatum) {

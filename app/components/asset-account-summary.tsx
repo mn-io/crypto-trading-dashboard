@@ -10,10 +10,10 @@ export default function AssetAccountSummary() {
     <section>
       <div className="text-right text-sm">
         <p>Available</p>
-        <p>
+        <p data-cy="asset-text">
           {totalAsset}&nbsp;<span className="font-bold">{process.env.NEXT_PUBLIC_ASSET}</span>
         </p>
-        <p>
+        <p data-cy="cash-text">
           {totalCash}&nbsp;
           <span className="font-bold">{process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}</span>
         </p>

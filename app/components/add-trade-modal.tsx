@@ -137,6 +137,7 @@ export default function TransactionModal({
         </div>
         <div className="flex items-center mb-2 input-root">
           <input
+            data-cy="price-input"
             type="text"
             placeholder="Price"
             value={price === '' && !priceClearedByUser ? calculatedPrice : price}
@@ -148,6 +149,7 @@ export default function TransactionModal({
         </div>
         <div className="flex items-center mb-2 input-root">
           <input
+            data-cy="amount-input"
             type="text"
             placeholder="Amount"
             value={amount === '' && !amountClearedByUser ? calculatedAmount : amount}
@@ -160,12 +162,14 @@ export default function TransactionModal({
 
         <div className="flex justify-between">
           <button
+            data-cy="buy-btn"
             onClick={() => handleSubmit('Buy')}
             className="primary-button-color py-2 px-4 mr-2 rounded  cursor-pointer w-full"
           >
             Buy
           </button>
           <button
+            data-cy="sell-btn"
             onClick={() => handleSubmit('Sell')}
             className="primary-button-color py-2 px-4 ml-2 rounded  cursor-pointer w-full"
           >
@@ -173,7 +177,9 @@ export default function TransactionModal({
           </button>
         </div>
 
-        <p className="text-sm mt-2 h-13">{error}</p>
+        <p className="text-sm mt-2 h-13" data-cy="error-text">
+          {error}
+        </p>
       </div>
     </div>
   );

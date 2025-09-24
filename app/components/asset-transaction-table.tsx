@@ -1,9 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchTransactionData, getNetHoldingSign } from '../store/transactionSlice';
+import { useState } from 'react';
+import { useAppSelector } from '../store/hooks';
+import { getNetHoldingSign } from '../store/transactionSlice';
 
 const TransactionModal = dynamic(() => import('./add-trade-modal'), {
   ssr: false,
@@ -42,6 +42,7 @@ export default function AssetTransactionTable() {
 
       <div className="mb-4">
         <button
+          data-cy="trade-btn"
           className="w-full primary-button-color font-semibold py-2 px-4 rounded cursor-pointer"
           onClick={() => setOpenDialog(true)}
         >

@@ -5,7 +5,7 @@ export type TestServer = {
   host: string;
 };
 
-// process.env.NEXT_PUBLIC_HOST is populated in jest.setup.ts
+// process.env.NEXT_PUBLIC_HOST is populated in jest.setup.ts/js
 
 export async function startTestServer(
   host: string = process.env.NEXT_PUBLIC_HOST || 'http://localhost:3002',
@@ -62,4 +62,5 @@ export async function stopTestServer(serverProc: ChildProcess) {
   if (serverProc.stderr) {
     serverProc.stderr.on('data', () => {});
   }
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 }
