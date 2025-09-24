@@ -78,6 +78,53 @@ function getTicks(
   return [...new Set(ticks.map((tick) => tick.toString()))]; // remove potential dupplicates, set preserves insertion order
 }
 
+const createTicks =
+  (
+    maxLabel: Big,
+    prevCloseRounded: Big | null,
+    currentRounded: Big | null,
+    highlightedValue: string | null,
+  ) =>
+  ({ x, y, payload }: { x: number; y: number; payload: { value: string } }) => {
+    let textColor = 'var(--color-graph-label-text)';
+    let backgroundColor = 'var(--color-graph-label-bg)';
+
+    const width = maxLabel.toString().length * charWidth;
+    const moreLeft = 5;
+    let fixLeft = 0;
+    if (prevCloseRounded && payload.value === prevCloseRounded.toString()) {
+      textColor = 'var(--color-graph-label-bg)';
+      backgroundColor = 'var(--color-graph-label-bg-prevclose)';
+      fixLeft = -5;
+    } else {
+      if (currentRounded !== null && payload.value === currentRounded.toString()) {
+        textColor = 'var(--color-graph-label-bg)';
+        backgroundColor = 'var(--color-graph-label-text)';
+      }
+      if (highlightedValue !== null && payload.value === highlightedValue.toString()) {
+        textColor = 'var(--color-graph-label-bg)';
+        backgroundColor = 'var(--color-graph-label-text)';
+      }
+    }
+
+    return (
+      <g key={`tick-${payload.value}-${x}-${y}-${textColor}-${backgroundColor}`}>
+        <rect
+          x={x + moreLeft + fixLeft}
+          y={y - 12}
+          width={paddingLabel + width + paddingLabel - fixLeft}
+          height={16}
+          fill={backgroundColor}
+          rx={4}
+          ry={4}
+        />
+        <text x={x + paddingLabel + moreLeft} y={y} fill={textColor} fontSize={10}>
+          {payload.value}
+        </text>
+      </g>
+    );
+  };
+
 interface ChartTooltipProps {
   active?: boolean;
   payload?: { payload: ChartDatum; value: string }[];
@@ -116,7 +163,7 @@ export default function AssetChart() {
     );
   }
 
-  const prevCloseRounded = hasData ? getBig(chartData[0].price).round(0, Big.roundDown) : null;
+  const prevCloseRounded = getBig(chartData[0].price).round(0, Big.roundDown);
 
   const prevCloseRoundedTwoDigits = hasData
     ? getBig(chartData[0].price).times(100).round(0, Big.roundDown).div(100)
@@ -138,7 +185,7 @@ export default function AssetChart() {
   const pnlFormatted = (isPositive ? '+' : '') + pnlBig.toFixed(2).toString();
 
   return (
-    <section className="p-4">
+    <section className="p-0 relative lg:-top-20">
       <div className="h-64 flex flex-col items-center justify-center space-y-2">
         <h2 className="text-xl font-semibold">{process.env.NEXT_PUBLIC_ASSET}</h2>
         <h2 className="text-xl font-semibold">
@@ -193,48 +240,7 @@ export default function AssetChart() {
                   currentRounded,
                   highlightedValue,
                 )}
-                tick={({ x, y, payload }) => {
-                  let textColor = 'var(--color-graph-label-text)';
-                  let backgroundColor = 'var(--color-graph-label-bg)';
-
-                  const width = (maxLabel + '').length * charWidth;
-                  const moreLeft = 5;
-                  let fixLeft = 0;
-                  if (prevCloseRounded && payload.value === prevCloseRounded.toString()) {
-                    textColor = 'var(--color-graph-label-bg)';
-                    backgroundColor = 'var(--color-graph-label-bg-prevclose)';
-                    fixLeft = -5;
-                  } else {
-                    if (currentRounded !== null && payload.value === currentRounded.toString()) {
-                      textColor = 'var(--color-graph-label-bg)';
-                      backgroundColor = 'var(--color-graph-label-text)';
-                    }
-                    if (
-                      highlightedValue !== null &&
-                      payload.value === highlightedValue.toString()
-                    ) {
-                      textColor = 'var(--color-graph-label-bg)';
-                      backgroundColor = 'var(--color-graph-label-text)';
-                    }
-                  }
-
-                  return (
-                    <g key={`tick-${payload.value}-${x}-${y}-${textColor}-${backgroundColor}`}>
-                      <rect
-                        x={x + moreLeft + fixLeft}
-                        y={y - 12}
-                        width={paddingLabel + width + paddingLabel - fixLeft}
-                        height={16}
-                        fill={backgroundColor}
-                        rx={4}
-                        ry={4}
-                      />
-                      <text x={x + paddingLabel + moreLeft} y={y} fill={textColor} fontSize={10}>
-                        {payload.value}
-                      </text>
-                    </g>
-                  );
-                }}
+                tick={createTicks(maxLabel, prevCloseRounded, currentRounded, highlightedValue)}
               />
 
               {prevCloseRounded && (

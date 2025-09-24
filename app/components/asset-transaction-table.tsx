@@ -30,13 +30,8 @@ const timeFormatter = new Intl.DateTimeFormat('de-DE', {
 });
 
 export default function AssetTransactionTable() {
-  const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.transactions.data);
   const [openDialog, setOpenDialog] = useState(false);
-
-  useEffect(() => {
-    dispatch(fetchTransactionData());
-  }, [dispatch]);
 
   const now = Date.now();
   const today = dateFormatter.format(now);
@@ -54,7 +49,7 @@ export default function AssetTransactionTable() {
         </button>
       </div>
 
-      <div className="max-h-64 overflow-y-auto table-bg-color rounded-xl p-4">
+      <div className="table-bg-color rounded-lg p-4 max-h-240 overflow-y-auto">
         <table className="w-full text-left border-collapse">
           <tbody>
             {data.length === 0 ? (
@@ -73,14 +68,15 @@ export default function AssetTransactionTable() {
 
                 return (
                   <tr key={datum.time + datum.type}>
-                    <td className="text-left pb-2">{datum.type}</td>
-                    <td className="text-center font-semibold">
-                      {`${
-                        netHoldingsingInvertedStr + datum.amountAsset
-                      } ${process.env.NEXT_PUBLIC_ASSET} / 
-                    ${netHoldingsingStr}${datum.price} ${process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}`}
+                    <td className="text-left pb-2 align-top">{datum.type}</td>
+                    <td className="text-center font-semibold align-top">
+                      {netHoldingsingInvertedStr}
+                      {datum.amountAsset}&nbsp;
+                      {process.env.NEXT_PUBLIC_ASSET} / {netHoldingsingStr}
+                      {datum.price}&nbsp;
+                      {process.env.NEXT_PUBLIC_PRICE_CURRENCY_SIGN}
                     </td>
-                    <td className="text-right">
+                    <td className="text-right align-top">
                       {date != today ? date + ' ' : ''}
                       {time}
                     </td>
